@@ -1,8 +1,6 @@
 import os
 import json
 import time
-import shutil
-from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from newsapi import NewsApiClient
@@ -25,9 +23,7 @@ genai_client = genai.Client(api_key=GOOGLE_API_KEY)
 
 # Directory setup
 images_dir = Path('images')
-archives_dir = Path('archives')
 images_dir.mkdir(exist_ok=True)
-archives_dir.mkdir(exist_ok=True)
 
 # Rate limiting
 last_google_api_call_time = None
@@ -63,8 +59,13 @@ def fetch_stories(category, count):
     stories = []
     print(f"  Fetching {count} stories...")
     try:
-        top_headlines = newsapi.get_top_headlines(country='us', page_size=15) if not category else newsapi.get_top_headlines(category=category, country='us', page_size=15)
+        if category:
+            top_headlines = newsapi.get_top_headlines(category=category, country='us', page_size=15)
+        else:
+            top_headlines = newsapi.get_top_headlines(country='us', page_size=15)
+            
         raw_articles = top_headlines.get('articles', [])
+        
         for i, article in enumerate(raw_articles):
             if i >= count: break
             stories.append({
@@ -76,18 +77,21 @@ def fetch_stories(category, count):
             })
     except Exception as e:
         print(f"  News API Error: {e}")
+
+    while len(stories) < count:
+        next_id = len(stories) + 1
+        stories.append({
+            'id': next_id,
+            'title': "More Content Coming Soon", 
+            'source': "System",
+            'url': "#",
+            'description': "Waiting for more headlines to populate."
+        })
     return stories
 
 def generate_memory_palace_concept(stories, count):
     wait_for_api_cooldown()
-    
-    # 1. READ THE PREVIOUS THEME
-    previous_theme = "None"
-    if os.path.exists('last_theme.txt'):
-        with open('last_theme.txt', 'r') as f:
-            previous_theme = f.read().strip()
-
-    print(f"  Scouting Locations (Avoiding: {previous_theme})...")
+    print("  Scouting Locations & Designing the World (Logic AI)...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
 
@@ -102,19 +106,23 @@ def generate_memory_palace_concept(stories, count):
        - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
        - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
-    3. CRITICAL VARIETY RULE:
-       - DO NOT use the theme: '{previous_theme}'. 
-       - You must pick something visually and geographically distinct from the previous run to ensure variety.
-    
-    4. THE MNEMONICS: For EACH of the {count} stories, invent a unique Literal Visual Pun.
-       - RULE: Describe objects clearly and assign distinct zones (Top Left, Center, etc.).
+    3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
+       - Describe the object CLEARLY and uniquely.
+       - ASSIGN ZONES: Spread them across the image (Foreground Left, Center, Top Right, etc.).
 
     Return JSON format only:
     {{
-        "chosen_location": "Name of the location",
+        "chosen_location": "Location Name",
         "theme_name": "Internal Theme Title",
-        "setting_description": "Vivid description...",
-        "story_elements": [...]
+        "setting_description": "Vivid description of architecture and atmosphere.",
+        "story_elements": [
+            {{ 
+                "id": 1, 
+                "visual_cue": "Specific object description", 
+                "mnemonic_explanation": "Link to headline",
+                "assigned_zone": "Specific Zone" 
+            }}
+        ]
     }}
     """
     
@@ -126,13 +134,6 @@ def generate_memory_palace_concept(stories, count):
         )
         data = json.loads(clean_json_text(response.text))
         if isinstance(data, list): data = data[0]
-        
-        # 2. SAVE THE NEW THEME FOR NEXT TIME
-        new_location = data.get('chosen_location', 'Dynamic Setting')
-        with open('last_theme.txt', 'w') as f:
-            f.write(new_location)
-            
-        print(f"  Location Scout: {new_location}")
         return data
     except Exception as e:
         print(f"  Concept Gen Error: {e}")
@@ -173,26 +174,12 @@ def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
     print("  Locating mnemonics (Vision AI)...")
     
-    # SAFE EXTRACTION: Use .get() and filters to prevent KeyError
-    story_elements = scene_concept.get('story_elements', [])
-    items_to_find = []
-    
-    for e in story_elements:
-        # Check for 'id' safely; skip if missing
-        eid = e.get('id')
-        cue = e.get('visual_cue', 'object')
-        if eid is not None:
-            items_to_find.append(f"ID {eid}: {cue}")
-    
-    if not items_to_find:
-        print("  Vision Error: No valid story elements found to locate.")
-        return []
-
+    items_to_find = [f"ID {e['id']}: {e['visual_cue']}" for e in scene_concept.get('story_elements', [])]
     items_str = "\n".join(items_to_find)
 
     prompt = f"""
     Look at this illustration. Find the exact (x, y) coordinates for the center of each specific object listed below.
-    Precise mapping is required. If you cannot find an object, estimate its location based on the scene.
+    Precise mapping is required. If you cannot find an object, use its 'assigned_zone' to estimate.
     
     List:
     {items_str}
@@ -215,180 +202,125 @@ def find_coordinates(image, scene_concept):
         print(f"  Vision Error: {e}")
         return []
 
-def generate_html(section_config, stories, locations, image_filename, theme_name, target_file, is_archive=False):
-    # Adjust path for archive files vs root files
-    img_path = f"../images/{image_filename}" if is_archive else f"images/{image_filename}"
-    
+def generate_html(section_config, stories, locations, image_filename, theme_name):
     html = f"""
     <!DOCTYPE html>
     <html>
     <head>
         <title>NewsMap</title>
         <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
             body {{ background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }}
-            .canvas-container {{ position: relative; width: 95%; max-width: 1100px; border: 5px solid #2d3748; border-radius: 15px; overflow: hidden; }}
-            .main-image {{ width: 100%; display: block; }}
+            .canvas-container {{ position: relative; width: 95%; max-width: 1100px; border: 5px solid #2d3748; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
+            .main-image {{ width: 100%; height: auto; display: block; }}
+            
             .news-marker {{ 
                 position: absolute; width: 34px; height: 34px; 
-                background: rgba(66, 153, 225, 0.45); backdrop-filter: blur(4px); 
-                border: 2px solid white; border-radius: 50%; color: white;
-                display: flex; justify-content: center; align-items: center; font-weight: bold; transform: translate(-50%, -50%); cursor: pointer; z-index: 10;
+                background: rgba(66, 153, 225, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+                border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%; color: white;
+                display: flex; justify-content: center; align-items: center; font-weight: bold; 
+                cursor: pointer; transform: translate(-50%, -50%); transition: 0.2s; z-index: 100;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             }}
-            @media (max-width: 600px) {{ .news-marker {{ width: 24px; height: 24px; font-size: 11px; }} }}
-            .story-card {{ position: fixed; bottom: -100%; left: 0; right: 0; background: white; padding: 25px; border-radius: 25px 25px 0 0; transition: 0.4s; z-index: 1000; box-shadow: 0 -10px 40px rgba(0,0,0,0.3); }}
+            .news-marker:hover, .news-marker.active {{ background: rgba(43, 108, 176, 0.9); transform: translate(-50%, -50%) scale(1.3); z-index: 200; border-color: white; }}
+
+            @media (max-width: 600px) {{
+                .news-marker {{ width: 24px; height: 24px; font-size: 11px; }}
+                h1 {{ font-size: 1.8rem; }}
+            }}
+            
+            .story-card {{
+                position: fixed; bottom: -100%; left: 0; right: 0; background: white; padding: 25px; border-radius: 25px 25px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.4); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                z-index: 1000; max-width: 600px; margin: 0 auto;
+            }}
             .story-card.active {{ bottom: 0; }}
             .overlay {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 900; }}
             .overlay.active {{ display: block; }}
-            .mnemonic-box {{ background: #ebf8ff; border-left: 5px solid #4299e1; padding: 12px; margin: 15px 0; font-style: italic; }}
+            .mnemonic-box {{ background: #ebf8ff; border-left: 5px solid #4299e1; padding: 15px; margin: 15px 0; font-style: italic; color: #2c5282; }}
+            .read-btn {{ display: block; background: #4299e1; color: white; text-align: center; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: bold; }}
         </style>
     </head>
     <body>
-        <h1>NewsMap</h1>
+        <h1 style="color: #2d3748; margin-bottom: 20px;">NewsMap</h1>
         <div class="canvas-container">
-            <img src="{img_path}" class="main-image">
+            <img src="images/{image_filename}" class="main-image">
     """
+
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 10 * story['id'], 'y': 50})
-        html += f'<div class="news-marker" onclick="openStory({story["id"]})" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
+        html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
     
     html += '</div><div class="overlay" onclick="closeAll()"></div>'
     
     for story in stories:
         html += f"""
             <div class="story-card" id="card-{story['id']}">
-                <h3>{story['title']}</h3>
-                <div class="mnemonic-box">🧠 Hook: {story.get('mnemonic_explanation', '')}</div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">{story['source']}</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">{story['title']}</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> {story.get('mnemonic_explanation', 'Visualizing the news.')}</div>
                 <p>{story['description']}</p>
-                <a href="{story['url']}" target="_blank">Full Article</a>
-                <button onclick="closeAll()">Close</button>
+                <a href="{story['url']}" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
             </div>
         """
+
     html += """
         <script>
             function openStory(id) {
                 closeAll();
                 document.getElementById('card-' + id).classList.add('active');
+                document.getElementById('marker-' + id).classList.add('active');
                 document.querySelector('.overlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
             }
             function closeAll() {
                 document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.news-marker').forEach(m => m.classList.remove('active'));
                 document.querySelector('.overlay').classList.remove('active');
+                document.body.style.overflow = 'auto';
             }
         </script>
     </body></html>
     """
-    with open(target_file, 'w', encoding='utf-8') as f:
+    with open(section_config['filename'], 'w', encoding='utf-8') as f:
         f.write(html)
 
-def update_gallery():
-    print("  Updating Archive Gallery...")
-    # Sort files by newest timestamp first
-    html_files = sorted(list(archives_dir.glob("*.html")), reverse=True)
-    gallery_html = f"""
-    <!DOCTYPE html><html><head><title>NewsMap Archive</title><style>
-    body{{ font-family: sans-serif; padding: 40px; background: #f0f4f8; text-align: center; }}
-    .grid {{ display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }}
-    .item {{ background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }}
-    img {{ width: 100%; border-radius: 8px; }}
-    a {{ text-decoration: none; color: #4299e1; font-weight: bold; display: block; margin-top: 10px; }}
-    </style></head><body><h1>Historical NewsMaps</h1><div class='grid'>
-    """
-    for h_file in html_files:
-        # Extract timestamp for display
-        display_name = h_file.stem.replace("_", " ").replace("Front Page", "")
-        img_name = h_file.stem + ".png"
-        gallery_html += f"""
-        <div class='item'>
-            <img src='images/{img_name}'>
-            <a href='archives/{h_file.name}'>{display_name}</a>
-        </div>
-        """
-    gallery_html += "</div></body></html>"
-    with open("gallery.html", "w", encoding='utf-8') as f:
-        f.write(gallery_html)
-
 def main():
-    # USES SECONDS TO ALLOW MULTIPLE RUNS PER DAY
-    run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    
+    print("Starting NewsMap Sketchy Generation...")
     for section in SECTIONS:
-        # 1. Fetch news headlines
         stories = fetch_stories(section['category'], section['story_count'])
-        if not stories: 
-            print(f"  No stories found for {section['name']}. Skipping.")
-            continue
-        
-        # 2. Design the world concept (Memory Palace)
+        if not stories: continue
+            
         concept = generate_memory_palace_concept(stories, section['story_count'])
-        if not concept: 
-            print(f"  Failed to generate concept. Skipping.")
-            continue
+        if not concept: continue
         
-        # 3. Match mnemonics to stories (Resilient to KeyErrors)
-        story_elements = concept.get('story_elements', [])
         for story in stories:
-            # We look through the AI's elements to find the matching ID
-            for elem in story_elements:
-                # Use .get() to avoid crashing if 'id' is missing from AI response
-                if elem.get('id') == story.get('id'):
-                    story['mnemonic_explanation'] = elem.get('mnemonic_explanation', 'Visualized in scene.')
-                    break # Found the match, move to next story
-
-        # 4. Generate the illustration
+            for elem in concept.get('story_elements', []):
+                if elem['id'] == story['id']:
+                    story['mnemonic_explanation'] = elem.get('mnemonic_explanation', '')
+        
         image = generate_image(concept, section['story_count'])
-        if not image: 
-            print(f"  Failed to generate image. Skipping.")
-            continue
-
-        # 5. Define UNIQUE FILENAMES
-        # e.g., 2026-01-04_17-50-20_Front_Page.png
-        base_name = f"{run_timestamp}_{section['name'].replace(' ', '_')}"
-        image_name = f"{base_name}.png"
-        html_name = f"{base_name}.html"
+        if not image: continue
         
-        # 6. Save the unique image to the images directory
-        image.save(images_dir / image_name)
+        image_filename = f"{section['filename'].replace('.html', '.png')}"
+        image.save(images_dir / image_filename)
         
-        # 7. Locate mnemonics using Vision AI
         locations = find_coordinates(image, concept)
+        generate_html(section, stories, locations, image_filename, concept.get('chosen_location', 'World Scene'))
         
-        # 8. Generate Archive HTML (Saved in /archives folder)
-        # Note: is_archive=True tells the function to look up one level for the images
-        generate_html(
-            section, 
-            stories, 
-            locations, 
-            image_name, 
-            concept.get('theme_name', 'NewsMap'), 
-            archives_dir / html_name, 
-            is_archive=True
-        )
-        
-        # 9. Update Main index.html (In root folder) for the "latest" view
-        generate_html(
-            section, 
-            stories, 
-            locations, 
-            image_name, 
-            concept.get('theme_name', 'NewsMap'), 
-            section['filename'], 
-            is_archive=False
-        )
-        
-        # 10. Rebuild the visual gallery grid (gallery.html)
-        update_gallery()
-        
-        # 11. Sync with GitHub
         try:
-            print(f"  Syncing {run_timestamp} to GitHub...")
             os.system('git add .')
-            # Using double quotes for the commit message to handle spaces safely in Windows/Linux
-            os.system(f'git commit -m "Automated Run: {run_timestamp}"')
+            os.system(f'git commit -m "Automated Scout: {concept.get("chosen_location")}"')
             os.system('git push origin main')
-        except Exception as e: 
-            print(f"  Git failed: {e}")
+        except:
+            print("Git Push Failed.")
+        
+    print("\nGeneration Complete!")
 
 if __name__ == "__main__":
     main()
