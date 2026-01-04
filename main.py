@@ -93,35 +93,35 @@ def fetch_stories(category, count):
 
 def generate_memory_palace_concept(stories, count):
     wait_for_api_cooldown()
-    print("  Designing a Unique Sketchy-Style World (Logic AI)...")
+    print("  Analyzing News Vibe & Designing a Resonant World...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
 
-    # TWEAKED PROMPT: Added instruction for "Wildly Different" settings
     prompt = f"""
-    You are a master of the Method of Loci and a medical mnemonic illustrator.
+    You are a master of the Method of Loci and a Narrative Architect.
     
     TASK:
-    1. Invent a HIGH-CONCEPT UNIQUE THEME/SETTING for today's news. 
-       CRITICAL: Avoid generic parks or offices. Choose something EXOTIC (e.g., 'A Cyberpunk Night Market', 'A 17th Century Pirate Ship', 'A Surreal Candyland', 'A Space Station Greenhouse', 'A Mayan Jungle Temple', 'An Arctic Research Base').
-    
-    2. For these {count} headlines:
+    1. ANALYZE the VIBE of these headlines:
     {story_text}
 
-    3. For EACH story, invent a **Literal Visual Pun** or **Absurd Character**.
-       - RULE 1: Everything must be grounded (sitting, standing, or held). 
-       - RULE 2: Use "Sketchy Medical" style logic—surreal, funny, and highly visual.
+    2. CHOOSE A SETTING: Based on the overall 'vibe' (e.g., tense, hopeful, chaotic, innovative, bleak, celebratory), invent a UNIQUE, ELABORATE setting that matches that mood metaphorically.
+       - If the news is about conflict/power: Maybe a 'Game of Thrones-style War Room' or 'Ancient Roman Forum'.
+       - If the news is about tech/future: Maybe a 'Utopian Solarpunk Garden' or 'Holographic Control Center'.
+       - If the news is mixed/chaotic: Maybe a 'Surrealist Salvador Dali Desert' or 'Busy Victorian Train Station'.
     
-    Return JSON format only:
+    3. INNOVATION RULE: Avoid 'Parks' or 'Offices'. Think 'Sketchy Medical'—surreal, visually dense, and highly mnemonic.
+
+    Return JSON format:
     {{
+        "vibe_analysis": "Brief explanation of the mood you detected.",
         "theme_name": "Title of the Scene",
-        "setting_description": "Detailed description of the architecture, era, lighting, and atmosphere.",
+        "setting_description": "Extremely detailed visual description of the architecture, lighting, and weather that reflects the news vibe.",
         "story_elements": [
             {{ 
                 "id": 1, 
-                "visual_cue": "A giant lobster wearing a crown", 
-                "mnemonic_explanation": "Lobster represents the Maine election results; Crown represents the victory.",
-                "assigned_zone": "Foreground Left" 
+                "visual_cue": "A literal visual pun or absurd character grounded in the scene", 
+                "mnemonic_explanation": "How this visual links to the headline",
+                "assigned_zone": "Foreground/Background Left/Right/Center" 
             }}
         ]
     }}
@@ -133,7 +133,9 @@ def generate_memory_palace_concept(stories, count):
             contents=prompt,
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
-        return json.loads(clean_json_text(response.text))
+        data = json.loads(clean_json_text(response.text))
+        print(f"  Detected Vibe: {data.get('vibe_analysis', 'Unknown')}")
+        return data
     except Exception as e:
         print(f"  Concept Gen Error: {e}")
         return None
@@ -141,42 +143,21 @@ def generate_memory_palace_concept(stories, count):
 def generate_image(scene_concept, count):
     wait_for_api_cooldown()
     
-    # Use .get() to prevent KeyError if the AI missed a field
     theme = scene_concept.get('theme_name', 'Daily NewsMap')
-    setting = scene_concept.get('setting_description', 'A detailed environment')
+    setting = scene_concept.get('setting_description', 'A unique world')
     
-    print(f"  Drawing the NewsMap: {theme} (Image AI)...")
+    print(f"  Drawing the {theme} (Vibe-Matched Image AI)...")
     
-    # 1. World-Building Context
-    visual_prompt = f"A SINGLE UNIFIED SCENE set in: {setting}.\n"
-    visual_prompt += f"THEME: This is a {theme} themed environment.\n"
+    # Lead with the vibe-based setting
+    visual_prompt = f"A SINGLE UNIFIED PANORAMIC SCENE: {setting}.\n"
+    visual_prompt += f"STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Educational but surreal.\n"
+    visual_prompt += f"ATMOSPHERE: The lighting and mood should feel {scene_concept.get('vibe_analysis', 'distinctive')}.\n"
     
-    # 2. Sketchy Style Keywords
-    visual_prompt += (
-        "STYLE: Professional educational mnemonic illustration, 'Sketchy Medical' style. "
-        "Characterized by vibrant digital art, clean black ink outlines, bold saturated colors, "
-        "and flat cell-shading. Perspective: Isometric wide-angle.\n"
-    )
+    visual_prompt += f"\nINTEGRATED MNEMONIC OBJECTS:\n"
+    for element in scene_concept.get('story_elements', []):
+        visual_prompt += f"- In the {element.get('assigned_zone', 'center')}: {element.get('visual_cue')} (Integrated into the environment, grounded).\n"
     
-    # 3. Framing
-    visual_prompt += "Format: 4:3 Landscape aspect ratio. Lighting must be consistent with the setting.\n"
-    
-    # 4. Integrated Objects
-    visual_prompt += f"\nINTEGRATE THESE {count} SYMBOLIC OBJECTS NATURALLY INTO THE SCENE:\n"
-    elements = scene_concept.get('story_elements', [])
-    for element in elements:
-        cue = element.get('visual_cue', 'A mystery object')
-        zone = element.get('assigned_zone', 'center')
-        visual_prompt += f"- In the {zone}: {cue} (Grounded, NO TEXT).\n"
-    
-    # 5. Negative Prompting (Directly in text)
-    visual_prompt += (
-        "\nIMPORTANT RULES:\n"
-        "- NO text, NO words, NO labels, NO signage.\n"
-        "- NO white backgrounds; a fully realized environment only.\n"
-        "- Everything must be grounded. NO floating items.\n"
-        "- ONE unified scene, not a grid or collage."
-    )
+    visual_prompt += "\nRULES: NO text, NO labels. High detail, 4:3 Landscape."
 
     try:
         response = genai_client.models.generate_content(
@@ -184,6 +165,9 @@ def generate_image(scene_concept, count):
             contents=visual_prompt,
             config=types.GenerateContentConfig(response_modalities=["IMAGE"])
         )
+        if not response.candidates or not response.candidates[0].content.parts:
+            return None
+
         for part in response.candidates[0].content.parts:
             if part.inline_data:
                 return Image.open(BytesIO(part.inline_data.data))
