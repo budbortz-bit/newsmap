@@ -2,264 +2,106 @@
     <!DOCTYPE html>
     <html>
     <head>
-        <title>NewsMap: Front Page</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title>NewsMap: Waldo Mode</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
-            body { background: #f0f4f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px 0; margin: 0; }
-            h1 { color: #2d3748; margin-bottom: 20px; font-size: 24px; text-align: center; padding: 0 10px; }
-            
-            .canvas-container { 
-                position: relative; 
-                width: 100%; 
-                max-width: 1200px; 
-                border: 4px solid #2b6cb0; 
-                border-radius: 12px; 
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-                background: white; 
-                overflow: hidden; 
-                margin-bottom: 100px; 
-            }
-            
+            body { background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }
+            .canvas-container { position: relative; width: 100%; max-width: 1200px; border: 4px solid #2b6cb0; border-radius: 12px; overflow: hidden; }
             .main-image { width: 100%; height: auto; display: block; }
-            
-            /* GLOBAL GHOST MARKER STYLE (Base for Desktop & Mobile) */
             .news-marker { 
-                position: absolute; 
-                width: 26px; height: 26px; /* Default Desktop Size */
-                
-                /* The Ghost Effect */
-                background: rgba(66, 153, 225, 0.55); /* See-through Blue */
-                backdrop-filter: blur(3px);            /* Frosted Glass */
-                border: 1px solid rgba(255, 255, 255, 0.85); 
-                
-                border-radius: 50%; 
-                cursor: pointer; 
-                transform: translate(-50%, -50%); 
-                z-index: 10; 
+                position: absolute; width: 20px; height: 20px; 
+                background: rgba(66, 153, 225, 0.55); backdrop-filter: blur(2px);
+                border: 1px solid white; border-radius: 50%; cursor: pointer; 
+                transform: translate(-50%, -50%); z-index: 10;
                 display: flex; justify-content: center; align-items: center;
-                color: white; font-weight: bold; font-size: 12px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                color: white; font-weight: bold; font-size: 10px; transition: all 0.2s;
             }
-            
-            /* HOVER / ACTIVE STATE (Becomes Solid & Large) */
-            .news-marker:hover, .news-marker.active { 
-                transform: translate(-50%, -50%) scale(1.5); 
-                background: #2b6cb0;  /* Solid Blue */
-                opacity: 1;
-                z-index: 20; 
-                border: 2px solid white;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            }
-
-            /* MOBILE TWEAKS (Just slightly smaller) */
-            @media (max-width: 768px) {
-                .news-marker { 
-                    width: 20px; height: 20px; 
-                    font-size: 10px; 
-                }
-            }
-
-            /* MODAL / BOTTOM SHEET */
+            .news-marker.active { width: 32px; height: 32px; background: #2b6cb0; font-size: 14px; opacity: 1; }
             .story-card {
-                position: fixed;
-                bottom: -100%;
-                left: 0; right: 0;
-                background: white;
-                padding: 20px;
-                border-radius: 20px 20px 0 0;
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
-                transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 1000;
-                max-width: 600px;
-                margin: 0 auto;
+                position: fixed; bottom: -100%; left: 0; right: 0;
+                background: white; padding: 20px; border-radius: 20px 20px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: bottom 0.3s;
+                z-index: 1000; max-width: 600px; margin: 0 auto;
             }
-
             .story-card.active { bottom: 0; }
-            
-            .overlay {
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.3);
-                z-index: 900;
-                display: none;
-            }
+            .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 900; display: none; }
             .overlay.active { display: block; }
-
-            .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
-            .story-tag { background: #bee3f8; color: #2b6cb0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
-            .close-btn { background: none; border: none; font-size: 24px; color: #a0aec0; cursor: pointer; padding: 0; line-height: 1; }
-            
-            h3 { margin: 0 0 10px 0; font-size: 18px; color: #2d3748; line-height: 1.3; }
-            .mnemonic-box { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #2c5282; font-style: italic; }
-            p { margin: 0 0 15px 0; font-size: 14px; line-height: 1.6; color: #4a5568; }
-            .read-btn { display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; box-sizing: border-box; }
-            .read-btn:hover { background: #3182ce; }
-
-            @media (min-width: 769px) {
-                .story-card {
-                    bottom: 20px; left: 50%; transform: translateX(-50%);
-                    width: 400px;
-                    border-radius: 12px;
-                    margin-bottom: -100%;
-                }
-                .story-card.active { margin-bottom: 0; bottom: 40px; }
-            }
+            .mnemonic-box { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin: 10px 0; font-size: 13px; font-style: italic; }
+            .read-btn { display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: bold; }
         </style>
     </head>
     <body>
-        <h1>🗺️ NewsMap: Front Page</h1>
         <div class="canvas-container">
             <img src="images/index.png" class="main-image">
-    
-            <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 81%; left: 34%;">
-                1
-            </div>
-        
-            <div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 43%; left: 20%;">
-                2
-            </div>
-        
-            <div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 64%; left: 22%;">
-                3
-            </div>
-        
-            <div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 68%; left: 13%;">
-                4
-            </div>
-        
-            <div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 68%; left: 58%;">
-                5
-            </div>
-        
-            <div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 74%; left: 73%;">
-                6
-            </div>
-        
-            <div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 80%; left: 86%;">
-                7
-            </div>
-        
-            <div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 53%; left: 79%;">
-                8
-            </div>
-        
-            <div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 50%; left: 57%;">
-                9
-            </div>
-        
-            <div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 61%; left: 82%;">
-                10
-            </div>
-        </div><div class="overlay" onclick="closeAll()"></div>
+    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 167%; left: 195%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 369%; left: 380%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 537%; left: 272%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 295%; left: 568%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 430%; left: 446%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 571%; left: 476%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 624%; left: 386%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 704%; left: 359%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 794%; left: 584%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 110%; left: 641%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
             <div class="story-card" id="card-1">
-                <div class="card-header">
-                    <span class="story-tag">WRAL.com</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Measles exposure found in NC - WRAL</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The map represents 'NC,' and the red stickers symbolize the 'measles exposure.'</div>
-                <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Se...</p>
-                <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Amid boos, Baylor's Nnaji debuts in loss at TCU - ESPN</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Baylor's Nnaji's debut loss against TCU; the deflating ball signifies the loss.</div>
+                <p>James Nnaji, the 7-foot center and 2023 NBA draft pick whose signing drew criticism from coaches across college basketball last month, debuted Saturda...</p>
+                <a href="https://www.espn.com/mens-college-basketball/story/_/id/47493605/james-nnaji-debuts-5-points-4-fouls-baylor-loss" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-2">
-                <div class="card-header">
-                    <span class="story-tag">Hollywood Reporter</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The golden popcorn bucket signifies film awards/critics, and the ballots represent the voting taking place.</div>
-                <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinemato...</p>
-                <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Trump's isolationism meets his Venezuela exception - Axios</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Trump's isolationist policies meeting the exception of Venezuela. The half-finished wall suggests incomplete isolationism.</div>
+                <p>Trump built his brand on rejecting regime change and intervention....</p>
+                <a href="https://www.axios.com/2026/01/03/trump-venezuela-nation-building-isolationism" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-3">
-                <div class="card-header">
-                    <span class="story-tag">The Washington Post</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>How to get stronger as you age - The Washington Post</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The elderly person and kettlebell represent getting 'stronger as you age.'</div>
-                <p>New research finds that declining health is not inevitable as we age. It can also be a time to get healthier and stronger....</p>
-                <a href="https://www.washingtonpost.com/podcasts/post-reports/how-to-get-stronger-as-you-age-1/" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Measles exposure found in NC - WRAL</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Measles exposure found in North Carolina; the cookies emphasize the location.</div>
+                <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Services....</p>
+                <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-4">
-                <div class="card-header">
-                    <span class="story-tag">NPR</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Trump says 'we are going to run the country now' after removing Venezuela's president - NPR</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The 'Oval Office' desk and hat symbolize Trump and his assertion of 'running the country.'</div>
-                <p>President Trump says the United States conducted a strike in Venezuela and captured that country's president, Nicolás Maduro along with his ...</p>
-                <a href="https://www.npr.org/2026/01/03/g-s1-104346/trump-venezuela-maduro-press-conference" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Panthers vs Buccaneers Predictions, Picks & Best Bets for Today — NFL Week 18 - Covers.com</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Panthers vs Buccaneers predictions; the pirate ship hints at betting odds; the tripping dinosaur means defeat.</div>
+                <p>Expect a solid rushing game for Panthers running back Chuba Hubbard against the Buccaneers in our picks, odds & expert predictions for Saturday, Janua...</p>
+                <a href="https://www.covers.com/nfl/panthers-vs-buccaneers-predictions-picks-best-bets-today-january-3-2026" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-5">
-                <div class="card-header">
-                    <span class="story-tag">Variety</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Post New Year's Box Office: 'Avatar: Fire and Ash' Holds Strong - Variety</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The Avatar figure on money bags represents 'Avatar' holding strong at the 'Box Office,' with ash leaves for 'Fire and Ash.'</div>
-                <p>'Avatar: Fire and Ash' took an early lead at the post-New Year’s box office, marking its third Friday at the top of the charts....</p>
-                <a href="https://variety.com/2026/film/news/post-new-years-box-office-avatar-fire-and-ash-zootopia-2-1236621631/" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Removing Maduro Was ‘Donroe Doctrine’ in Action, Trump Says - The Wall Street Journal</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Trump's statement on removing Maduro as a 'Monroe Doctrine' action.</div>
+                <p>No description available....</p>
+                <a href="https://www.wsj.com/livecoverage/venezuela-strikes/card/removing-maduro-was-donroe-doctrine-in-action-trump-says-ZfqEF5T6l1aSvpej6rxP" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-6">
-                <div class="card-header">
-                    <span class="story-tag">WYFF4 Greenville</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The diorama elements represent the specific locations (restaurant, Best Buy, library), and the red dots signify 'measles exposure.'</div>
-                <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the dise...</p>
-                <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">More Saudi airstrikes hit separatist positions in Yemeni port city - ABC News</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Saudi airstrikes hitting separatist positions in Yemen. Duct tape stands in for conventional bombs.</div>
+                <p>Yemen has been engulfed in civil war for more than a decade....</p>
+                <a href="https://abcnews.go.com/International/wireStory/saudi-airstrikes-hit-separatist-positions-yemeni-port-city-128872012" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-7">
-                <div class="card-header">
-                    <span class="story-tag">Niners Nation</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>3 keys to a 49ers win over the Seahawks: Brock will have a lot on his plate - Niners Nation</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The three keys represent '3 keys,' the plate signifies 'on his plate,' and the football helmet points to the '49ers' and Brock.</div>
-                <p>The San Francisco 49ers have a lot on the line on Saturday night when they face the Seattle Seahawks. How can they pull off the win?...</p>
-                <a href="https://www.ninersnation.com/san-francisco-49ers-news/154690/san-francisco-49ers-news-3-keys-win-seattle-seahawks-brock-purdy-george-kittle" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Tony Dokoupil’s ‘CBS Evening News’ Run to Start Early Amid Venezuela Chaos - Variety</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Tony Dokoupil starting 'CBS Evening News' run amid Venezuela chaos.</div>
+                <p>Tony Dokoupil's run on 'CBS Evening News' will start two days earlier than expected as media outlets scramble after U.S. military action in Venezuela...</p>
+                <a href="https://variety.com/2026/tv/news/tony-dokoupil-cbs-evening-news-early-venezuela-1236622872/" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-8">
-                <div class="card-header">
-                    <span class="story-tag">Virginvoyages.com</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Important Travel Update for San Juan Disembarkation. - Virgin Voyages</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The model cruise ship and map represent 'Virgin Voyages,' 'Travel,' and 'San Juan,' with the 'docked' ship implying disembarkation.</div>
-                <p>Virgin Voyages is issuing the following update regarding travel disruptions affecting sailors disembarking in San Juan today....</p>
-                <a href="https://www.virginvoyages.com/ahoy/stories/san-juan-disembarkation-travel-update" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> National Society of Film Critics voting; the crumbling sets represent their critical assessment.</div>
+                <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinematography....</p>
+                <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-9">
-                <div class="card-header">
-                    <span class="story-tag">Rolling Stone</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Billy Joel Performs for First Time Since Brain Disorder Diagnosis - Rolling Stone</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The grand piano represents Billy Joel performing, the Rolling Stone magazine signifies the source, and the brain model refers to his 'brain disorder diagnosis.'</div>
-                <p>Billy Joel returned to the stage for the first time since revealing his brain disorder diagnosis, performing a surprise two-song set....</p>
-                <a href="http://www.rollingstone.com/music/music-news/billy-joel-performs-first-time-brain-disorder-diagnosis-1235493768/" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Measles exposure at a restaurant, Best Buy, and a library.</div>
+                <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the disease....</p>
+                <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-10">
-                <div class="card-header">
-                    <span class="story-tag">PhillyVoice.com</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
-                </div>
-                <h3>Week 18 NFL straight up, against the spread, and survivor pool picks - PhillyVoice</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The football and calendar denote 'NFL Week 18,' while the toy raft in a puddle humorously represents 'survivor pool picks.'</div>
-                <p>Jimmy makes his final regular season picks amid playoff-defining matchups....</p>
-                <a href="https://www.phillyvoice.com/week-18-nfl-straight-against-spread-and-survivor-pool-picks-eagles-commanders-bears-lions/" target="_blank" class="read-btn">Read Full Story</a>
+                <h3 style="margin-top:0;">‘Avatar: Fire And Ash’ Burning Trail To $302M U.S.; ‘Housemaid’ Holding Strong, 2026 Starts +22% Over ’25 – Saturday Box Office Update - Deadline</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> 'Avatar: Fire And Ash' box office success despite burning set, and the mention of 'Housemaid' film.</div>
+                <p>'Avatar: Fire and Ash' has a shot at crossing $300M at the U.S. box office during the first weekend of 2026....</p>
+                <a href="http://deadline.com/2026/01/box-office-avatar-fire-and-ash-2026-first-weekend-1236660722/" target="_blank" class="read-btn">Read More</a>
             </div>
         
         <script>
@@ -269,17 +111,11 @@
                 document.getElementById('marker-' + id).classList.add('active');
                 document.querySelector('.overlay').classList.add('active');
             }
-
             function closeAll() {
-                const cards = document.querySelectorAll('.story-card');
-                const markers = document.querySelectorAll('.news-marker');
-                const overlay = document.querySelector('.overlay');
-                
-                cards.forEach(c => c.classList.remove('active'));
-                markers.forEach(m => m.classList.remove('active'));
-                overlay.classList.remove('active');
+                document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.news-marker').forEach(m => m.classList.remove('active'));
+                document.querySelector('.overlay').classList.remove('active');
             }
         </script>
-    </body>
-    </html>
+    </body></html>
     
