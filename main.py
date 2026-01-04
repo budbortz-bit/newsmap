@@ -71,7 +71,7 @@ def generate_waldo_theme(stories):
     print("  Inventing a Waldo-style Wimmelbilder theme...")
     titles = [s['title'] for s in stories]
     
-    # Archetypes inspired by classic search-and-find books
+    # Archetypes based on classic Martin Handford wimmelbilder
     archetypes = [
         "A sprawling medieval battle with ridiculous siege engines",
         "A multi-level futuristic airport with alien travelers",
@@ -170,15 +170,19 @@ def generate_html(stories, locations, image_filename):
             body {{ background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }}
             .canvas-container {{ position: relative; width: 100%; max-width: 1200px; border: 4px solid #2b6cb0; border-radius: 12px; overflow: hidden; }}
             .main-image {{ width: 100%; height: auto; display: block; }}
+            
+            /* Numbers restored to markers */
             .news-marker {{ 
-                position: absolute; width: 20px; height: 20px; 
-                background: rgba(66, 153, 225, 0.55); backdrop-filter: blur(2px);
-                border: 1px solid white; border-radius: 50%; cursor: pointer; 
+                position: absolute; width: 24px; height: 24px; 
+                background: rgba(66, 153, 225, 0.8); backdrop-filter: blur(2px);
+                border: 2px solid white; border-radius: 50%; cursor: pointer; 
                 transform: translate(-50%, -50%); z-index: 10;
                 display: flex; justify-content: center; align-items: center;
-                color: white; font-weight: bold; font-size: 10px; transition: all 0.2s;
+                color: white; font-weight: bold; font-size: 12px; transition: all 0.2s;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             }}
-            .news-marker.active {{ width: 32px; height: 32px; background: #2b6cb0; font-size: 14px; opacity: 1; }}
+            .news-marker.active {{ width: 34px; height: 34px; background: #2b6cb0; font-size: 14px; opacity: 1; }}
+
             .story-card {{
                 position: fixed; bottom: -100%; left: 0; right: 0;
                 background: white; padding: 20px; border-radius: 20px 20px 0 0;
@@ -190,6 +194,8 @@ def generate_html(stories, locations, image_filename):
             .overlay.active {{ display: block; }}
             .mnemonic-box {{ background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin: 10px 0; font-size: 13px; font-style: italic; }}
             .read-btn {{ display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: bold; }}
+            
+            @media (max-width: 768px) {{ .news-marker {{ width: 22px; height: 22px; font-size: 11px; }} }}
         </style>
     </head>
     <body>
@@ -198,8 +204,11 @@ def generate_html(stories, locations, image_filename):
     """
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 50, 'y': 50})
+        # RESTORED ID NUMBER TO MARKER
         html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
+    
     html += '</div><div class="overlay" onclick="closeAll()"></div>'
+    
     for story in stories:
         html += f"""
             <div class="story-card" id="card-{story['id']}">
@@ -230,19 +239,30 @@ def generate_html(stories, locations, image_filename):
 def main():
     stories = fetch_stories(STORY_COUNT)
     if not stories: return
+    
     theme = generate_waldo_theme(stories)
     concept = generate_memory_palace_concept(stories, theme)
+    
     for story in stories:
         for elem in concept['story_elements']:
             if elem['id'] == story['id']:
                 story['mnemonic_explanation'] = elem.get('mnemonic_explanation')
+    
     image = generate_image(concept)
     if image:
         img_name = "index.png"
         image.save(images_dir / img_name)
         locs = find_coordinates(image, concept)
         generate_html(stories, locs, img_name)
-        print(f"Update Success! Theme: {theme}")
+        
+        # AUTOMATED GIT UPLOAD (Optional, relies on git command availability)
+        try:
+            os.system('git add .')
+            os.system(f'git commit -m "Auto Update: {time.ctime()}"')
+            os.system('git push origin main')
+            print("Successfully pushed to GitHub!")
+        except Exception as e:
+            print(f"Git upload failed: {e}")
 
 if __name__ == "__main__":
     main()
