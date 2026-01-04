@@ -99,13 +99,34 @@ def generate_memory_palace_concept(stories, count):
 
 def generate_image(scene_concept, count):
     wait_for_api_cooldown()
-    print(f"  Painting Scene: {scene_concept.get('theme_name')} (Image AI)...")
-    prompt = f"Panoramic scene: {scene_concept['setting_description']}. Style: 'Sketchy Medical' mnemonic illustration, bold black outlines, flat colors. Isometric. Grounded objects: " + ", ".join([e['visual_cue'] for e in scene_concept['story_elements']])
+    setting = scene_concept.get('setting_description', 'A cinematic world')
+    
+    print(f"  Painting the Scene (Image AI)...")
+    
+    visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE: {setting}.\n"
+    visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n"
+    
+    visual_prompt += f"\nINTEGRATED MNEMONIC OBJECTS:\n"
+    for element in scene_concept.get('story_elements', []):
+        visual_prompt += f"- In the {element.get('assigned_zone', 'center')}: {element.get('visual_cue')} (Grounded naturally, NO TEXT).\n"
+    
+    visual_prompt += "\nRULES: NO text, NO labels. Professional digital art. NO white background."
+
     try:
-        response = genai_client.models.generate_content(model='gemini-2.5-flash-image', contents=prompt, config=types.GenerateContentConfig(response_modalities=["IMAGE"]))
+        response = genai_client.models.generate_content(
+            model='gemini-2.5-flash-image', 
+            contents=visual_prompt,
+            config=types.GenerateContentConfig(response_modalities=["IMAGE"])
+        )
+        if not response.candidates or not response.candidates[0].content.parts:
+            return None
         for part in response.candidates[0].content.parts:
-            if part.inline_data: return Image.open(BytesIO(part.inline_data.data))
-    except: return None
+            if part.inline_data:
+                return Image.open(BytesIO(part.inline_data.data))
+        return None
+    except Exception as e:
+        print(f"  Image Gen Error: {e}")
+        return None
 
 def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
