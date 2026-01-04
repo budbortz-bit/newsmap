@@ -29,7 +29,7 @@ images_dir.mkdir(exist_ok=True)
 last_google_api_call_time = None
 API_CALL_DELAY_SECONDS = 2
 
-# --- CONFIGURATION (SINGLE PAGE) ---
+# --- CONFIGURATION ---
 SECTIONS = [
     {
         "name": "Front Page",
@@ -61,7 +61,6 @@ def clean_json_text(text):
 def fetch_stories(category, count):
     """Fetch stories from NewsAPI"""
     stories = []
-    
     print(f"  Fetching {count} stories for category: {category if category else 'General'}...")
     try:
         if category:
@@ -83,7 +82,6 @@ def fetch_stories(category, count):
     except Exception as e:
         print(f"  News API Error: {e}")
 
-    # Safety Pad
     while len(stories) < count:
         next_id = len(stories) + 1
         stories.append({
@@ -93,7 +91,6 @@ def fetch_stories(category, count):
             'url': "#",
             'description': "Waiting for more headlines to populate."
         })
-        
     return stories
 
 def generate_memory_palace_concept(stories, theme, count):
@@ -101,14 +98,12 @@ def generate_memory_palace_concept(stories, theme, count):
     print("  Designing the NewsMap (Text AI)...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
-    
     zones = [
         "Foreground Left", "Foreground Center", "Foreground Right",
         "Midground Far Left", "Midground Left", "Midground Right", "Midground Far Right",
         "Background Left", "Background Center", "Background Right"
     ]
 
-    # UPDATED PROMPT: Enforces "Concrete/Pun" logic and asks for an Explanation
     prompt = f"""
     Here are exactly {count} headlines:
     {story_text}
@@ -120,10 +115,7 @@ def generate_memory_palace_concept(stories, theme, count):
     2. For EACH story, invent a **Visual Mnemonic Symbol**.
        - **RULE 1 (Grounding)**: The object must sit on something or be held. NO floating.
        - **RULE 2 (Connection)**: Use PUNS, SOUND-ALIKES, or LITERAL VISUALS.
-         - Bad: "A scale" for Justice Dept (Too abstract).
-         - Good: "A jar of ICE" for an ISIS story (Sound-alike).
-         - Good: "A Bull" for a stock market rally (Literal/Iconic).
-    3. Provide a short "mnemonic_explanation" for why you chose that symbol.
+    3. Provide a short "mnemonic_explanation".
 
     Return JSON format only:
     {{
@@ -161,13 +153,10 @@ def generate_image(scene_concept, count):
     visual_prompt += f"Style: Educational medical illustration style (like a biology textbook or 'Sketchy Medical'). \n"
     visual_prompt += f"Colors: VIVID, HIGH SATURATION, FULL COLOR. \n"
     visual_prompt += f"NEGATIVE PROMPT: NO floating objects, NO hovering items, NO text, NO words, NO letters, NO numbers, NO labels, NO signage, NO writing. NO comic book panels, NO grid, NO collage. \n\n"
-    
     visual_prompt += f"Setting: {scene_concept['setting_description']}\n\n"
     visual_prompt += f"Integrate these {count} distinct objects seamlessly into the scene:\n"
-    
     for element in scene_concept['story_elements']:
         visual_prompt += f"- Located in the {element['assigned_zone']}: {element['visual_cue']} (Integrated into the environment, NO TEXT)\n"
-    
     visual_prompt += "\nEnsure all objects are grounded (resting on surfaces or held by characters). Consistent lighting."
 
     try:
@@ -176,7 +165,6 @@ def generate_image(scene_concept, count):
             contents=visual_prompt,
             config=types.GenerateContentConfig(response_modalities=["IMAGE"])
         )
-        
         for part in response.candidates[0].content.parts:
             if part.inline_data:
                 return Image.open(BytesIO(part.inline_data.data))
@@ -188,7 +176,6 @@ def generate_image(scene_concept, count):
 def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
     print("  Locating mnemonics (Vision AI)...")
-
     items_to_find = []
     for elem in scene_concept['story_elements']:
         items_to_find.append(f"ID {elem['id']}: {elem['visual_cue']} (Look in: {elem['assigned_zone']})")
@@ -198,22 +185,14 @@ def find_coordinates(image, scene_concept):
     prompt = f"""
     Look at this illustration. Find the location of specific objects.
     I have provided HINTS for where each object is located.
-    
     List:
     {items_str}
-
     For EACH ID:
     1. Locate the object.
     2. Return the (x, y) coordinates of the CENTER of that object.
     3. Calculate x and y as PERCENTAGES (0 to 100) from the top-left corner.
-    
     Return JSON only:
-    {{
-        "locations": [
-            {{ "id": 1, "x": 10, "y": 20 }},
-            ...
-        ]
-    }}
+    {{ "locations": [ {{ "id": 1, "x": 10, "y": 20 }}, ... ] }}
     """
 
     try:
@@ -229,7 +208,7 @@ def find_coordinates(image, scene_concept):
         return []
 
 def generate_html(section_config, stories, locations, image_filename):
-    """Generate Single Page HTML with Mnemonic Explanations"""
+    """Generate HTML: Unified Ghost Style (Translucent by default)"""
 
     html = f"""
     <!DOCTYPE html>
@@ -240,7 +219,6 @@ def generate_html(section_config, stories, locations, image_filename):
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
             body {{ background: #f0f4f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px 0; margin: 0; }}
-            
             h1 {{ color: #2d3748; margin-bottom: 20px; font-size: 24px; text-align: center; padding: 0 10px; }}
             
             .canvas-container {{ 
@@ -252,50 +230,92 @@ def generate_html(section_config, stories, locations, image_filename):
                 box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
                 background: white; 
                 overflow: hidden; 
-                margin-bottom: 50px; 
-                box-sizing: border-box; 
+                margin-bottom: 100px; 
             }}
             
             .main-image {{ width: 100%; height: auto; display: block; }}
             
-            /* Markers */
-            .news-marker {{ position: absolute; width: 32px; height: 32px; background: rgba(66, 153, 225, 0.85); border: 2px solid #fff; border-radius: 50%; cursor: pointer; transform: translate(-50%, -50%); transition: all 0.2s ease; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }}
-            .news-marker:hover {{ background: #2b6cb0; transform: translate(-50%, -50%) scale(1.2); z-index: 30; border-color: #bee3f8; }}
-            .marker-number {{ display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; color: white; font-weight: bold; font-size: 14px; }}
+            /* GLOBAL GHOST MARKER STYLE (Base for Desktop & Mobile) */
+            .news-marker {{ 
+                position: absolute; 
+                width: 26px; height: 26px; /* Default Desktop Size */
+                
+                /* The Ghost Effect */
+                background: rgba(66, 153, 225, 0.55); /* See-through Blue */
+                backdrop-filter: blur(3px);            /* Frosted Glass */
+                border: 1px solid rgba(255, 255, 255, 0.85); 
+                
+                border-radius: 50%; 
+                cursor: pointer; 
+                transform: translate(-50%, -50%); 
+                z-index: 10; 
+                display: flex; justify-content: center; align-items: center;
+                color: white; font-weight: bold; font-size: 12px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }}
             
-            /* --- POPUP LOGIC --- */
-            .summary-box {{ position: absolute; width: 300px; background: white; color: #2d3748; padding: 16px; border-radius: 8px; box-shadow: 0 15px 30px rgba(0,0,0,0.25); opacity: 0; visibility: hidden; transition: opacity 0.2s; pointer-events: auto; z-index: 20; text-align: left; border: 1px solid #e2e8f0; }}
-            
-            /* Positioning Classes (Up/Down/Left/Right) */
-            .summary-box.popup-center {{ left: 50%; transform: translateX(-50%); }}
-            .summary-box.popup-left {{ left: 0; transform: translateX(0); }}
-            .summary-box.popup-right {{ right: 0; left: auto; transform: translateX(0); }}
-            
-            .summary-box.popup-up {{ bottom: 130%; }}
-            .summary-box.popup-up::after {{ content: ""; position: absolute; top: 100%; left: 50%; border: 8px solid transparent; border-top-color: white; margin-left: -8px; }}
+            /* HOVER / ACTIVE STATE (Becomes Solid & Large) */
+            .news-marker:hover, .news-marker.active {{ 
+                transform: translate(-50%, -50%) scale(1.5); 
+                background: #2b6cb0;  /* Solid Blue */
+                opacity: 1;
+                z-index: 20; 
+                border: 2px solid white;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            }}
 
-            .summary-box.popup-down {{ top: 130%; }}
-            .summary-box.popup-down::after {{ content: ""; position: absolute; bottom: 100%; left: 50%; border: 8px solid transparent; border-bottom-color: white; margin-left: -8px; }}
-
-            .news-marker:hover .summary-box, .summary-box:hover {{ opacity: 1; visibility: visible; }}
-            
-            /* Typography */
-            h3 {{ margin: 0 0 6px 0; font-size: 16px; color: #2d3748; line-height: 1.3;}}
-            .source {{ font-size: 11px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; display: block;}}
-            p {{ margin: 0 0 10px 0; font-size: 13px; line-height: 1.5; color: #4a5568;}}
-            .mnemonic-hint {{ background: #ebf8ff; color: #2c5282; padding: 8px; border-radius: 4px; font-size: 12px; font-style: italic; margin-bottom: 10px; border-left: 3px solid #4299e1; }}
-            a {{ display: inline-block; background: #4299e1; color: white; padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; }}
-
-            /* Mobile Overrides */
+            /* MOBILE TWEAKS (Just slightly smaller) */
             @media (max-width: 768px) {{
-                .canvas-container {{ border: none; border-radius: 0; margin-bottom: 20px; }}
-                .news-marker {{ width: 40px; height: 40px; }}
-                .summary-box, .summary-box.popup-up, .summary-box.popup-down, .summary-box.popup-left, .summary-box.popup-right {{
-                    position: fixed !important; bottom: 0 !important; top: auto !important; left: 0 !important; right: 0 !important;
-                    width: 100% !important; max-width: 100% !important; transform: none !important;
-                    border-radius: 16px 16px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); margin: 0 !important; z-index: 9999;
+                .news-marker {{ 
+                    width: 20px; height: 20px; 
+                    font-size: 10px; 
                 }}
-                .summary-box::after {{ display: none !important; }}
+            }}
+
+            /* MODAL / BOTTOM SHEET */
+            .story-card {{
+                position: fixed;
+                bottom: -100%;
+                left: 0; right: 0;
+                background: white;
+                padding: 20px;
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+                transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                z-index: 1000;
+                max-width: 600px;
+                margin: 0 auto;
+            }}
+
+            .story-card.active {{ bottom: 0; }}
+            
+            .overlay {{
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.3);
+                z-index: 900;
+                display: none;
+            }}
+            .overlay.active {{ display: block; }}
+
+            .card-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }}
+            .story-tag {{ background: #bee3f8; color: #2b6cb0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }}
+            .close-btn {{ background: none; border: none; font-size: 24px; color: #a0aec0; cursor: pointer; padding: 0; line-height: 1; }}
+            
+            h3 {{ margin: 0 0 10px 0; font-size: 18px; color: #2d3748; line-height: 1.3; }}
+            .mnemonic-box {{ background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #2c5282; font-style: italic; }}
+            p {{ margin: 0 0 15px 0; font-size: 14px; line-height: 1.6; color: #4a5568; }}
+            .read-btn {{ display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; box-sizing: border-box; }}
+            .read-btn:hover {{ background: #3182ce; }}
+
+            @media (min-width: 769px) {{
+                .story-card {{
+                    bottom: 20px; left: 50%; transform: translateX(-50%);
+                    width: 400px;
+                    border-radius: 12px;
+                    margin-bottom: -100%;
+                }}
+                .story-card.active {{ margin-bottom: 0; bottom: 40px; }}
             }}
         </style>
     </head>
@@ -307,33 +327,49 @@ def generate_html(section_config, stories, locations, image_filename):
 
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 50, 'y': 50})
-        x_pos = float(loc['x'])
-        y_pos = float(loc['y'])
-        
-        # Calculate Desktop Classes
-        v_class = "popup-down" if y_pos < 40 else "popup-up"
-        if x_pos < 20: h_class = "popup-left"
-        elif x_pos > 80: h_class = "popup-right"
-        else: h_class = "popup-center"
-        
-        # Fallback if mnemonic connection is missing
-        mnemonic_text = story.get('mnemonic_explanation', 'Visual mnemonic for this story.')
-
         html += f"""
-            <div class="news-marker" style="top: {loc['y']}%; left: {loc['x']}%;">
-                <div class="marker-number">{story['id']}</div>
-                <div class="summary-box {v_class} {h_class}">
-                    <h3>{story['title']}</h3>
-                    <span class="source">{story['source']}</span>
-                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> {mnemonic_text}</div>
-                    <p>{story['description'][:140]}...</p>
-                    <a href="{story['url']}" target="_blank">Read Story</a>
+            <div class="news-marker" onclick="openStory({story['id']})" id="marker-{story['id']}" style="top: {loc['y']}%; left: {loc['x']}%;">
+                {story['id']}
+            </div>
+        """
+    html += "</div>" # End canvas-container
+
+    html += '<div class="overlay" onclick="closeAll()"></div>'
+    
+    for story in stories:
+        mnemonic_text = story.get('mnemonic_explanation', 'Visual mnemonic for this story.')
+        html += f"""
+            <div class="story-card" id="card-{story['id']}">
+                <div class="card-header">
+                    <span class="story-tag">{story['source']}</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
                 </div>
+                <h3>{story['title']}</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> {mnemonic_text}</div>
+                <p>{story['description'][:140]}...</p>
+                <a href="{story['url']}" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         """
 
     html += """
-        </div>
+        <script>
+            function openStory(id) {
+                closeAll();
+                document.getElementById('card-' + id).classList.add('active');
+                document.getElementById('marker-' + id).classList.add('active');
+                document.querySelector('.overlay').classList.add('active');
+            }
+
+            function closeAll() {
+                const cards = document.querySelectorAll('.story-card');
+                const markers = document.querySelectorAll('.news-marker');
+                const overlay = document.querySelector('.overlay');
+                
+                cards.forEach(c => c.classList.remove('active'));
+                markers.forEach(m => m.classList.remove('active'));
+                overlay.classList.remove('active');
+            }
+        </script>
     </body>
     </html>
     """
@@ -349,15 +385,11 @@ def main():
         print(f"\n--- PROCESSING SECTION: {section['name']} ---")
         
         stories = fetch_stories(section['category'], section['story_count'])
-        if not stories: 
-            print("  Skipping section due to API error.")
-            continue
+        if not stories: continue
             
         concept = generate_memory_palace_concept(stories, section['theme'], section['story_count'])
         if not concept: continue
         
-        # CRITICAL STEP: Merge Mnemonic Explanations back into Story List
-        # This connects the "Reasoning" from the Text AI to the "Popup" in the HTML
         for story in stories:
             for elem in concept['story_elements']:
                 if elem['id'] == story['id']:
@@ -370,7 +402,6 @@ def main():
         image_filename = f"{section['filename'].replace('.html', '.png')}"
         image_path = images_dir / image_filename
         image.save(image_path, "PNG")
-        print(f"  Saved image: {image_filename}")
         
         locations = find_coordinates(image, concept)
         generate_html(section, stories, locations, image_filename)
