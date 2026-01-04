@@ -9,17 +9,30 @@
             .canvas-container { position: relative; width: 100%; max-width: 1200px; border: 4px solid #2b6cb0; border-radius: 12px; overflow: hidden; }
             .main-image { width: 100%; height: auto; display: block; }
             
-            /* Numbers restored to markers */
+            /* MARKER CSS - FIXED FOR VISIBLE NUMBERS */
             .news-marker { 
-                position: absolute; width: 24px; height: 24px; 
-                background: rgba(66, 153, 225, 0.8); backdrop-filter: blur(2px);
-                border: 2px solid white; border-radius: 50%; cursor: pointer; 
-                transform: translate(-50%, -50%); z-index: 10;
-                display: flex; justify-content: center; align-items: center;
-                color: white; font-weight: bold; font-size: 12px; transition: all 0.2s;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                position: absolute; 
+                width: 28px; height: 28px; 
+                background: #2b6cb0; 
+                border: 2px solid white; 
+                border-radius: 50%; 
+                cursor: pointer; 
+                transform: translate(-50%, -50%); 
+                z-index: 10;
+                display: flex; 
+                justify-content: center; 
+                align-items: center;
+                color: white !important; 
+                font-weight: 900 !important; 
+                font-size: 14px !important; 
+                line-height: 28px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                text-align: center;
             }
-            .news-marker.active { width: 34px; height: 34px; background: #2b6cb0; font-size: 14px; opacity: 1; }
+            .news-marker:hover, .news-marker.active { 
+                transform: translate(-50%, -50%) scale(1.3); 
+                background: #eb4034; /* Changes to Waldo Red on hover */
+            }
 
             .story-card {
                 position: fixed; bottom: -100%; left: 0; right: 0;
@@ -32,80 +45,78 @@
             .overlay.active { display: block; }
             .mnemonic-box { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin: 10px 0; font-size: 13px; font-style: italic; }
             .read-btn { display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: bold; }
-            
-            @media (max-width: 768px) { .news-marker { width: 22px; height: 22px; font-size: 11px; } }
         </style>
     </head>
     <body>
         <div class="canvas-container">
             <img src="images/index.png" class="main-image">
-    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 602%; left: 748%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 363%; left: 687%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 292%; left: 472%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 304%; left: 543%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 502%; left: 473%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 849%; left: 935%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 596%; left: 435%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 762%; left: 242%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 111%; left: 126%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 738%; left: 126%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
+    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 164%; left: 199%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 428%; left: 728%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 140%; left: 433%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 356%; left: 392%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 289%; left: 304%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 226%; left: 765%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 491%; left: 584%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 487%; left: 240%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 800%; left: 230%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 744%; left: 801%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
             <div class="story-card" id="card-1">
                 <h3 style="margin-top:0;">Amid boos, Baylor's Nnaji debuts in loss at TCU - ESPN</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the ESPN headline 'Amid boos, Baylor's Nnaji debuts in loss at TCU.' The booing, the Baylor team, and the TCU mascot all directly reference the headline.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Baylor's Nnaji debuting in a loss at TCU from ESPN. 'Booed Bear' connects to the negative performance and the teams involved.</div>
                 <p>James Nnaji, the 7-foot center and 2023 NBA draft pick whose signing drew criticism from coaches across college basketball last month, debuted Saturda...</p>
                 <a href="https://www.espn.com/mens-college-basketball/story/_/id/47493605/james-nnaji-debuts-5-points-4-fouls-baylor-loss" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-2">
                 <h3 style="margin-top:0;">Trump's isolationism meets his Venezuela exception - Axios</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Combines 'Trump's isolationism meets his Venezuela exception' (Trump figurine and Venezuelan set), with the inflated pig visually representing inflation affecting both the movie production and the Venezuelan set.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Trump's isolationism encountering a 'Venezuela exception' as mentioned by Axios. The incomplete wall signifies the failed isolationism and the Venezuelan flag the exception.</div>
                 <p>Trump built his brand on rejecting regime change and intervention....</p>
                 <a href="https://www.axios.com/2026/01/03/trump-venezuela-nation-building-isolationism" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-3">
                 <h3 style="margin-top:0;">Measles exposure found in NC - WRAL</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Measles exposure found in NC.' The measles cloud and the 'NC' shirt establish the location and the issue.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents a measles exposure found in North Carolina, as reported by WRAL. The flashing sign highlights the urgency and location.</div>
                 <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Services....</p>
                 <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-4">
                 <h3 style="margin-top:0;">Panthers vs Buccaneers Predictions, Picks & Best Bets for Today — NFL Week 18 - Covers.com</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Visualizes 'Panthers vs Buccaneers Predictions, Picks & Best Bets for Today.' The foosball game and the gambling brochures symbolize the prediction and betting aspect of the headline.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Panthers vs. Buccaneers NFL game and betting predictions from Covers.com. The fighting animals represent the competition and the betting slips, the stakes.</div>
                 <p>Expect a solid rushing game for Panthers running back Chuba Hubbard against the Buccaneers in our picks, odds & expert predictions for Saturday, Janua...</p>
                 <a href="https://www.covers.com/nfl/panthers-vs-buccaneers-predictions-picks-best-bets-today-january-3-2026" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-5">
                 <h3 style="margin-top:0;">Removing Maduro Was ‘Donroe Doctrine’ in Action, Trump Says - The Wall Street Journal</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Removing Maduro Was ‘Donroe Doctrine’ in Action, Trump Says.' The crumbling set symbolizes the failure of the doctrine in this context, with Trump orchestrating the 'action'.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Trump stating that removing Maduro was a 'Monroe Doctrine' in action, as reported by The Wall Street Journal. Don Quixote symbolizes the idealistic but possibly misguided action.</div>
                 <p>No description available....</p>
                 <a href="https://www.wsj.com/livecoverage/venezuela-strikes/card/removing-maduro-was-donroe-doctrine-in-action-trump-says-ZfqEF5T6l1aSvpej6rxP" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-6">
                 <h3 style="margin-top:0;">More Saudi airstrikes hit separatist positions in Yemeni port city - ABC News</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'More Saudi airstrikes hit separatist positions in Yemeni port city.' The Saudi planes and confetti visualize the airstrikes. The dilapidated setting represents Yemen.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Saudi airstrikes hitting separatist positions in a Yemeni port city, as reported by ABC News. The paper airplane and containers symbolize the attack and location.</div>
                 <p>Yemen has been engulfed in civil war for more than a decade....</p>
                 <a href="https://abcnews.go.com/International/wireStory/saudi-airstrikes-hit-separatist-positions-yemeni-port-city-128872012" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-7">
                 <h3 style="margin-top:0;">Tony Dokoupil’s ‘CBS Evening News’ Run to Start Early Amid Venezuela Chaos - Variety</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Tony Dokoupil’s ‘CBS Evening News’ Run to Start Early Amid Venezuela Chaos.' Tony Dokoupil and the CBS microphone are easily identifiable, while the 'Venezuela Chaos' sign sets the context.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Tony Dokoupil's 'CBS Evening News' run starting early amid Venezuela chaos, as reported by Variety. The marathon signifies his career move, and the flags, the reason for the early start.</div>
                 <p>Tony Dokoupil's run on 'CBS Evening News' will start two days earlier than expected as media outlets scramble after U.S. military action in Venezuela...</p>
                 <a href="https://variety.com/2026/tv/news/tony-dokoupil-cbs-evening-news-early-venezuela-1236622872/" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-8">
                 <h3 style="margin-top:0;">National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'National Society of Film Critics Voting Taking Place.' The critics, ballot box, and the neon pen symbolize the voting process.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the National Society of Film Critics Voting taking place, updating live, as reported by The Hollywood Reporter. Their use of ballots as fans symbolizes the critics' activity and their exasperated faces represent the chaotic Hollywood backdrop.</div>
                 <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinematography....</p>
                 <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-9">
                 <h3 style="margin-top:0;">Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Measles exposure at popular downtown restaurant, Best Buy, and library.' The locations and the 'Measles Exposure' sign establish the main point.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents measles exposure at a popular downtown restaurant, Best Buy, and library, as reported by WYFF News 4. The rash-covered customer connects the measles exposure to those locations.</div>
                 <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the disease....</p>
                 <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank" class="read-btn">Read More</a>
             </div>
         
             <div class="story-card" id="card-10">
                 <h3 style="margin-top:0;">‘Avatar: Fire And Ash’ Burning Trail To $302M U.S.; ‘Housemaid’ Holding Strong, 2026 Starts +22% Over ’25 – Saturday Box Office Update - Deadline</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Avatar: Fire And Ash’ Burning Trail To $302M U.S.; ‘Housemaid’ Holding Strong, 2026 Starts +22% Over ’25.' The financial numbers and movie titles are directly represented, alongside film characters to denote the theatricality</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Avatar: Fire And Ash's' box office success and 'Housemaid' holding strong with a 2026 start +22% over 2025, as reported by Deadline. The burning screen symbolizes the hot box office, and the maid represents the steady performance of the latter film.</div>
                 <p>'Avatar: Fire and Ash' has a shot at crossing $300M at the U.S. box office during the first weekend of 2026....</p>
                 <a href="http://deadline.com/2026/01/box-office-avatar-fire-and-ash-2026-first-weekend-1236660722/" target="_blank" class="read-btn">Read More</a>
             </div>

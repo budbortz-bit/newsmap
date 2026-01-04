@@ -71,7 +71,6 @@ def generate_waldo_theme(stories):
     print("  Inventing a Waldo-style Wimmelbilder theme...")
     titles = [s['title'] for s in stories]
     
-    # Archetypes based on classic Martin Handford wimmelbilder
     archetypes = [
         "A sprawling medieval battle with ridiculous siege engines",
         "A multi-level futuristic airport with alien travelers",
@@ -85,12 +84,10 @@ def generate_waldo_theme(stories):
     prompt = f"""
     You are a 'Where's Waldo' (Wimmelbilder) illustrator. 
     Analyze these headlines: {titles}
-    
     Task: 
     1. Select ONE base from: {archetypes}.
     2. Add a unique twist that reflects the mood of today's news.
-    3. Ensure the scene is 'Wimmelbilder'—extremely dense, packed with hundreds of tiny people and sub-plots.
-    
+    3. Ensure the scene is 'Wimmelbilder'—extremely dense, packed with hundreds of tiny people.
     Return ONLY the theme description. No JSON.
     """
     try:
@@ -108,15 +105,12 @@ def generate_memory_palace_concept(stories, theme):
     Create a 'Where's Waldo' style Memory Palace.
     Theme: {theme}
     Headlines: {story_text}
-
     Logic:
     1. Use literal visual puns (e.g. 'Inflated Pig' for 'Inflation').
     2. Symbols must pop with Neon colors against the busy background.
-    3. Ground objects within the {theme}.
-
     Return JSON:
     {{
-        "setting_description": "A dense Wimmelbilder illustration with black ink lines...",
+        "setting_description": "...",
         "story_elements": [
             {{ "id": 1, "visual_cue": "...", "mnemonic_explanation": "...", "assigned_zone": "Foreground Left" }}
         ]
@@ -171,17 +165,30 @@ def generate_html(stories, locations, image_filename):
             .canvas-container {{ position: relative; width: 100%; max-width: 1200px; border: 4px solid #2b6cb0; border-radius: 12px; overflow: hidden; }}
             .main-image {{ width: 100%; height: auto; display: block; }}
             
-            /* Numbers restored to markers */
+            /* MARKER CSS - FIXED FOR VISIBLE NUMBERS */
             .news-marker {{ 
-                position: absolute; width: 24px; height: 24px; 
-                background: rgba(66, 153, 225, 0.8); backdrop-filter: blur(2px);
-                border: 2px solid white; border-radius: 50%; cursor: pointer; 
-                transform: translate(-50%, -50%); z-index: 10;
-                display: flex; justify-content: center; align-items: center;
-                color: white; font-weight: bold; font-size: 12px; transition: all 0.2s;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                position: absolute; 
+                width: 28px; height: 28px; 
+                background: #2b6cb0; 
+                border: 2px solid white; 
+                border-radius: 50%; 
+                cursor: pointer; 
+                transform: translate(-50%, -50%); 
+                z-index: 10;
+                display: flex; 
+                justify-content: center; 
+                align-items: center;
+                color: white !important; 
+                font-weight: 900 !important; 
+                font-size: 14px !important; 
+                line-height: 28px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+                text-align: center;
             }}
-            .news-marker.active {{ width: 34px; height: 34px; background: #2b6cb0; font-size: 14px; opacity: 1; }}
+            .news-marker:hover, .news-marker.active {{ 
+                transform: translate(-50%, -50%) scale(1.3); 
+                background: #eb4034; /* Changes to Waldo Red on hover */
+            }}
 
             .story-card {{
                 position: fixed; bottom: -100%; left: 0; right: 0;
@@ -194,8 +201,6 @@ def generate_html(stories, locations, image_filename):
             .overlay.active {{ display: block; }}
             .mnemonic-box {{ background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin: 10px 0; font-size: 13px; font-style: italic; }}
             .read-btn {{ display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: bold; }}
-            
-            @media (max-width: 768px) {{ .news-marker {{ width: 22px; height: 22px; font-size: 11px; }} }}
         </style>
     </head>
     <body>
@@ -204,11 +209,10 @@ def generate_html(stories, locations, image_filename):
     """
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 50, 'y': 50})
-        # RESTORED ID NUMBER TO MARKER
+        # Explicitly putting the number inside the div
         html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
     
     html += '</div><div class="overlay" onclick="closeAll()"></div>'
-    
     for story in stories:
         html += f"""
             <div class="story-card" id="card-{story['id']}">
@@ -239,30 +243,22 @@ def generate_html(stories, locations, image_filename):
 def main():
     stories = fetch_stories(STORY_COUNT)
     if not stories: return
-    
     theme = generate_waldo_theme(stories)
     concept = generate_memory_palace_concept(stories, theme)
-    
     for story in stories:
         for elem in concept['story_elements']:
             if elem['id'] == story['id']:
                 story['mnemonic_explanation'] = elem.get('mnemonic_explanation')
-    
     image = generate_image(concept)
     if image:
         img_name = "index.png"
         image.save(images_dir / img_name)
         locs = find_coordinates(image, concept)
         generate_html(stories, locs, img_name)
-        
-        # AUTOMATED GIT UPLOAD (Optional, relies on git command availability)
-        try:
-            os.system('git add .')
-            os.system(f'git commit -m "Auto Update: {time.ctime()}"')
-            os.system('git push origin main')
-            print("Successfully pushed to GitHub!")
-        except Exception as e:
-            print(f"Git upload failed: {e}")
+        # Git automated push
+        os.system('git add .')
+        os.system(f'git commit -m "Waldo Update: {time.ctime()}"')
+        os.system('git push origin main')
 
 if __name__ == "__main__":
     main()
