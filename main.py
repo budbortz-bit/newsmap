@@ -80,7 +80,14 @@ def fetch_stories(category, count):
 
 def generate_memory_palace_concept(stories, count):
     wait_for_api_cooldown()
-    print("  Scouting Locations & Designing the World (Logic AI)...")
+    
+    # 1. READ THE PREVIOUS THEME
+    previous_theme = "None"
+    if os.path.exists('last_theme.txt'):
+        with open('last_theme.txt', 'r') as f:
+            previous_theme = f.read().strip()
+
+    print(f"  Scouting Locations (Avoiding: {previous_theme})...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
 
@@ -95,23 +102,19 @@ def generate_memory_palace_concept(stories, count):
        - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
        - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
-    3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
-       - Describe the object CLEARLY and uniquely.
-       - ASSIGN ZONES: Spread them across the image (Foreground Left, Center, Top Right, etc.).
+    3. CRITICAL VARIETY RULE:
+       - DO NOT use the theme: '{previous_theme}'. 
+       - You must pick something visually and geographically distinct from the previous run to ensure variety.
+    
+    4. THE MNEMONICS: For EACH of the {count} stories, invent a unique Literal Visual Pun.
+       - RULE: Describe objects clearly and assign distinct zones (Top Left, Center, etc.).
 
     Return JSON format only:
     {{
-        "chosen_location": "Location Name",
+        "chosen_location": "Name of the location",
         "theme_name": "Internal Theme Title",
-        "setting_description": "Vivid description of architecture and atmosphere.",
-        "story_elements": [
-            {{ 
-                "id": 1, 
-                "visual_cue": "Specific object description", 
-                "mnemonic_explanation": "Link to headline",
-                "assigned_zone": "Specific Zone" 
-            }}
-        ]
+        "setting_description": "Vivid description...",
+        "story_elements": [...]
     }}
     """
     
@@ -123,6 +126,13 @@ def generate_memory_palace_concept(stories, count):
         )
         data = json.loads(clean_json_text(response.text))
         if isinstance(data, list): data = data[0]
+        
+        # 2. SAVE THE NEW THEME FOR NEXT TIME
+        new_location = data.get('chosen_location', 'Dynamic Setting')
+        with open('last_theme.txt', 'w') as f:
+            f.write(new_location)
+            
+        print(f"  Location Scout: {new_location}")
         return data
     except Exception as e:
         print(f"  Concept Gen Error: {e}")
@@ -161,13 +171,49 @@ def generate_image(scene_concept, count):
 
 def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
-    items_str = "\n".join([f"ID {e['id']}: {e['visual_cue']}" for e in scene_concept['story_elements']])
-    prompt = f"Find (x, y) coordinates (0-100) for centers of objects in this image. Return JSON: {{'locations': [{{'id':1,'x':10,'y':20}}]}}.\n{items_str}"
+    print("  Locating mnemonics (Vision AI)...")
+    
+    # SAFE EXTRACTION: Use .get() and filters to prevent KeyError
+    story_elements = scene_concept.get('story_elements', [])
+    items_to_find = []
+    
+    for e in story_elements:
+        # Check for 'id' safely; skip if missing
+        eid = e.get('id')
+        cue = e.get('visual_cue', 'object')
+        if eid is not None:
+            items_to_find.append(f"ID {eid}: {cue}")
+    
+    if not items_to_find:
+        print("  Vision Error: No valid story elements found to locate.")
+        return []
+
+    items_str = "\n".join(items_to_find)
+
+    prompt = f"""
+    Look at this illustration. Find the exact (x, y) coordinates for the center of each specific object listed below.
+    Precise mapping is required. If you cannot find an object, estimate its location based on the scene.
+    
+    List:
+    {items_str}
+    
+    Return JSON format only:
+    {{ "locations": [ {{ "id": 1, "x": 10, "y": 20 }}, ... ] }}
+    X and Y are percentages (0-100).
+    """
+
     try:
-        response = genai_client.models.generate_content(model='gemini-2.0-flash', contents=[prompt, image], config=types.GenerateContentConfig(response_mime_type="application/json"))
+        response = genai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=[prompt, image],
+            config=types.GenerateContentConfig(response_mime_type="application/json")
+        )
         data = json.loads(clean_json_text(response.text))
+        if isinstance(data, list): data = data[0]
         return data.get('locations', [])
-    except: return []
+    except Exception as e:
+        print(f"  Vision Error: {e}")
+        return []
 
 def generate_html(section_config, stories, locations, image_filename, theme_name, target_file, is_archive=False):
     # Adjust path for archive files vs root files
@@ -268,46 +314,81 @@ def main():
     run_timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     
     for section in SECTIONS:
+        # 1. Fetch news headlines
         stories = fetch_stories(section['category'], section['story_count'])
-        if not stories: continue
+        if not stories: 
+            print(f"  No stories found for {section['name']}. Skipping.")
+            continue
         
+        # 2. Design the world concept (Memory Palace)
         concept = generate_memory_palace_concept(stories, section['story_count'])
-        if not concept: continue
+        if not concept: 
+            print(f"  Failed to generate concept. Skipping.")
+            continue
         
-        # Match mnemonics to stories
+        # 3. Match mnemonics to stories (Resilient to KeyErrors)
+        story_elements = concept.get('story_elements', [])
         for story in stories:
-            for elem in concept.get('story_elements', []):
-                if elem['id'] == story['id']:
-                    story['mnemonic_explanation'] = elem.get('mnemonic_explanation', '')
+            # We look through the AI's elements to find the matching ID
+            for elem in story_elements:
+                # Use .get() to avoid crashing if 'id' is missing from AI response
+                if elem.get('id') == story.get('id'):
+                    story['mnemonic_explanation'] = elem.get('mnemonic_explanation', 'Visualized in scene.')
+                    break # Found the match, move to next story
 
+        # 4. Generate the illustration
         image = generate_image(concept, section['story_count'])
-        if not image: continue
+        if not image: 
+            print(f"  Failed to generate image. Skipping.")
+            continue
 
-        # UNIQUE FILENAMES
+        # 5. Define UNIQUE FILENAMES
+        # e.g., 2026-01-04_17-50-20_Front_Page.png
         base_name = f"{run_timestamp}_{section['name'].replace(' ', '_')}"
         image_name = f"{base_name}.png"
         html_name = f"{base_name}.html"
         
-        # Save unique image
+        # 6. Save the unique image to the images directory
         image.save(images_dir / image_name)
         
-        # Locate mnemonics
+        # 7. Locate mnemonics using Vision AI
         locations = find_coordinates(image, concept)
         
-        # Generate Archive HTML (in archives folder)
-        generate_html(section, stories, locations, image_name, concept.get('theme_name'), archives_dir / html_name, is_archive=True)
+        # 8. Generate Archive HTML (Saved in /archives folder)
+        # Note: is_archive=True tells the function to look up one level for the images
+        generate_html(
+            section, 
+            stories, 
+            locations, 
+            image_name, 
+            concept.get('theme_name', 'NewsMap'), 
+            archives_dir / html_name, 
+            is_archive=True
+        )
         
-        # Update Main index.html (in root folder) for the "latest" view
-        generate_html(section, stories, locations, image_name, concept.get('theme_name'), section['filename'], is_archive=False)
+        # 9. Update Main index.html (In root folder) for the "latest" view
+        generate_html(
+            section, 
+            stories, 
+            locations, 
+            image_name, 
+            concept.get('theme_name', 'NewsMap'), 
+            section['filename'], 
+            is_archive=False
+        )
         
-        # Rebuild the gallery grid
+        # 10. Rebuild the visual gallery grid (gallery.html)
         update_gallery()
         
+        # 11. Sync with GitHub
         try:
+            print(f"  Syncing {run_timestamp} to GitHub...")
             os.system('git add .')
+            # Using double quotes for the commit message to handle spaces safely in Windows/Linux
             os.system(f'git commit -m "Automated Run: {run_timestamp}"')
             os.system('git push origin main')
-        except: print("Git failed")
+        except Exception as e: 
+            print(f"  Git failed: {e}")
 
 if __name__ == "__main__":
     main()
