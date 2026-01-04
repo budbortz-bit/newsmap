@@ -12,7 +12,7 @@
             
             .news-marker { 
                 position: absolute; width: 34px; height: 34px; 
-                background: rgba(66, 153, 225, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+                background: rgba(66, 153, 225, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
                 border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%; color: white;
                 display: flex; justify-content: center; align-items: center; font-weight: bold; 
                 cursor: pointer; transform: translate(-50%, -50%); transition: 0.2s; z-index: 100;
@@ -21,8 +21,8 @@
             .news-marker:hover, .news-marker.active { background: rgba(43, 108, 176, 0.9); transform: translate(-50%, -50%) scale(1.3); z-index: 200; border-color: white; }
 
             @media (max-width: 600px) {
-                .news-marker { width: 26px; height: 26px; font-size: 12px; }
-                h1 { font-size: 1.4rem; padding: 0 15px; }
+                .news-marker { width: 24px; height: 24px; font-size: 11px; }
+                h1 { font-size: 1.8rem; }
             }
             
             .story-card {
@@ -38,17 +38,17 @@
         </style>
     </head>
     <body>
-        <h1 style="color: #2d3748; margin-bottom: 20px;">🗺️ Yemen Airstrike Film Set</h1>
+        <h1 style="color: #2d3748; margin-bottom: 20px;">NewsMap</h1>
         <div class="canvas-container">
             <img src="images/index.png" class="main-image">
-    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 91%; left: 16%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 44%; left: 50%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 16%; left: 85%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 87%; left: 83%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 69%; left: 28%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 11%; left: 56%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 81%; left: 71%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 67%; left: 22%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 86%; left: 41%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 55%; left: 86%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
+    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 28%; left: 14%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 44%; left: 35%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 85%; left: 83%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 57%; left: 69%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 35%; left: 74%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 87%; left: 20%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 32%; left: 50%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 62%; left: 9%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 83%; left: 38%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 58%; left: 32%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
             <div class="story-card" id="card-1">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">ESPN</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Amid boos, Baylor's Nnaji debuts in loss at TCU - ESPN</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Baylor's Nnaji's debut loss at TCU, amid boos.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Baylor's Nnaji's debut amid boos. TCU is represented by the Tepui cliff.</div>
                 <p>James Nnaji, the 7-foot center and 2023 NBA draft pick whose signing drew criticism from coaches across college basketball last month, debuted Saturday, scoring five points with four fouls in Baylor's 69-63 loss to TCU in the Big 12 opener for both teams.</p>
                 <a href="https://www.espn.com/mens-college-basketball/story/_/id/47493605/james-nnaji-debuts-5-points-4-fouls-baylor-loss" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -60,7 +60,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Trump's isolationism meets his Venezuela exception - Axios</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Trump's isolationism meets his Venezuela exception.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Trump's isolationist policies and the exception made for Venezuela.</div>
                 <p>Trump built his brand on rejecting regime change and intervention.</p>
                 <a href="https://www.axios.com/2026/01/03/trump-venezuela-nation-building-isolationism" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -72,7 +72,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Measles exposure found in NC - WRAL</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Measles exposure found in NC.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Measles exposure found in North Carolina.</div>
                 <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Services.</p>
                 <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -84,7 +84,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Panthers vs Buccaneers Predictions, Picks & Best Bets for Today — NFL Week 18 - Covers.com</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Panthers vs Buccaneers NFL predictions & best bets.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Panthers vs Buccaneers NFL game.</div>
                 <p>Expect a solid rushing game for Panthers running back Chuba Hubbard against the Buccaneers in our picks, odds & expert predictions for Saturday, January 3.</p>
                 <a href="https://www.covers.com/nfl/panthers-vs-buccaneers-predictions-picks-best-bets-today-january-3-2026" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -96,7 +96,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Removing Maduro Was ‘Donroe Doctrine’ in Action, Trump Says - The Wall Street Journal</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Removing Maduro = 'Monroe Doctrine' in action, Trump says.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Trump saying removing Maduro was Donroe Doctrine in action.</div>
                 <p>No description available.</p>
                 <a href="https://www.wsj.com/livecoverage/venezuela-strikes/card/removing-maduro-was-donroe-doctrine-in-action-trump-says-ZfqEF5T6l1aSvpej6rxP" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -108,7 +108,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">More Saudi airstrikes hit separatist positions in Yemeni port city - ABC News</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Saudi airstrikes hit separatist positions in Yemeni port city.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Saudi airstrikes hitting separatist positions in Yemeni port city.</div>
                 <p>Yemen has been engulfed in civil war for more than a decade.</p>
                 <a href="https://abcnews.go.com/International/wireStory/saudi-airstrikes-hit-separatist-positions-yemeni-port-city-128872012" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -120,7 +120,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Tony Dokoupil’s ‘CBS Evening News’ Run to Start Early Amid Venezuela Chaos - Variety</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Tony Dokoupil’s ‘CBS Evening News’ run to start early amid Venezuela chaos.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Tony Dokoupil's CBS Evening News run starting early amid Venezuela chaos.</div>
                 <p>Tony Dokoupil's run on 'CBS Evening News' will start two days earlier than expected as media outlets scramble after U.S. military action in Venezuela</p>
                 <a href="https://variety.com/2026/tv/news/tony-dokoupil-cbs-evening-news-early-venezuela-1236622872/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -132,7 +132,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> National Society of Film Critics Voting Taking Place.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the National Society of Film Critics voting.</div>
                 <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinematography.</p>
                 <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -144,7 +144,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Measles exposure at restaurant, Best Buy, and library.</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents measles exposure at a downtown restaurant, Best Buy, and library.</div>
                 <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the disease.</p>
                 <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -156,7 +156,7 @@
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">‘Avatar: Fire And Ash’ Burning Trail To $302M U.S.; ‘Housemaid’ Holding Strong, 2026 Starts +22% Over ’25 – Saturday Box Office Update - Deadline</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Avatar's box office success and future film update</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Avatar box office success and housemaid.</div>
                 <p>'Avatar: Fire and Ash' has a shot at crossing $300M at the U.S. box office during the first weekend of 2026.</p>
                 <a href="http://deadline.com/2026/01/box-office-avatar-fire-and-ash-2026-first-weekend-1236660722/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>

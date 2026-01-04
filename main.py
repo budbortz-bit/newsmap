@@ -104,21 +104,21 @@ def generate_memory_palace_concept(stories, count):
 
     2. CHOOSE THE SETTING:
        - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
-       - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment (e.g. Space Station, Western Desert, Cyberpunk City).
+       - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
     3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
-       - IMPORTANT: Describe the object CLEARLY (e.g., 'A giant gold trophy', not just 'success').
-       - ASSIGN ZONES: Spread them out (Foreground Left, Center, Top Right, etc.).
+       - Describe the object CLEARLY and uniquely.
+       - ASSIGN ZONES: Spread them across the image (Foreground Left, Center, Top Right, etc.).
 
     Return JSON format only:
     {{
         "chosen_location": "Location Name",
-        "theme_name": "Title",
-        "setting_description": "Detailed visual setting.",
+        "theme_name": "Internal Theme Title",
+        "setting_description": "Vivid description of architecture and atmosphere.",
         "story_elements": [
             {{ 
                 "id": 1, 
-                "visual_cue": "Specific detailed object description", 
+                "visual_cue": "Specific object description", 
                 "mnemonic_explanation": "Link to headline",
                 "assigned_zone": "Specific Zone" 
             }}
@@ -141,10 +141,9 @@ def generate_memory_palace_concept(stories, count):
 
 def generate_image(scene_concept, count):
     wait_for_api_cooldown()
-    theme = scene_concept.get('theme_name', 'Daily NewsMap')
     setting = scene_concept.get('setting_description', 'A cinematic world')
     
-    print(f"  Painting the Scene: {theme} (Image AI)...")
+    print(f"  Painting the Scene (Image AI)...")
     
     visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE: {setting}.\n"
     visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n"
@@ -175,20 +174,19 @@ def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
     print("  Locating mnemonics (Vision AI)...")
     
-    # We ask the Vision AI to specifically find the visual_cues we just generated
     items_to_find = [f"ID {e['id']}: {e['visual_cue']}" for e in scene_concept.get('story_elements', [])]
     items_str = "\n".join(items_to_find)
 
     prompt = f"""
     Look at this illustration. Find the exact (x, y) coordinates for the center of each specific object listed below.
-    Be precise. If an object is not found, estimate its location based on the 'assigned_zone' from the concept.
+    Precise mapping is required. If you cannot find an object, use its 'assigned_zone' to estimate.
     
-    List to find:
+    List:
     {items_str}
     
     Return JSON format only:
     {{ "locations": [ {{ "id": 1, "x": 10, "y": 20 }}, ... ] }}
-    X and Y must be percentages (0-100).
+    X and Y are percentages (0-100).
     """
 
     try:
@@ -219,7 +217,7 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             
             .news-marker {{ 
                 position: absolute; width: 34px; height: 34px; 
-                background: rgba(66, 153, 225, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+                background: rgba(66, 153, 225, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
                 border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%; color: white;
                 display: flex; justify-content: center; align-items: center; font-weight: bold; 
                 cursor: pointer; transform: translate(-50%, -50%); transition: 0.2s; z-index: 100;
@@ -228,8 +226,8 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .news-marker:hover, .news-marker.active {{ background: rgba(43, 108, 176, 0.9); transform: translate(-50%, -50%) scale(1.3); z-index: 200; border-color: white; }}
 
             @media (max-width: 600px) {{
-                .news-marker {{ width: 26px; height: 26px; font-size: 12px; }}
-                h1 {{ font-size: 1.4rem; padding: 0 15px; }}
+                .news-marker {{ width: 24px; height: 24px; font-size: 11px; }}
+                h1 {{ font-size: 1.8rem; }}
             }}
             
             .story-card {{
@@ -245,13 +243,12 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
         </style>
     </head>
     <body>
-        <h1 style="color: #2d3748; margin-bottom: 20px;">🗺️ {theme_name}</h1>
+        <h1 style="color: #2d3748; margin-bottom: 20px;">NewsMap</h1>
         <div class="canvas-container">
             <img src="images/{image_filename}" class="main-image">
     """
 
     for story in stories:
-        # Find location or default to a spread-out pattern
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 10 * story['id'], 'y': 50})
         html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
     
@@ -314,11 +311,11 @@ def main():
         image.save(images_dir / image_filename)
         
         locations = find_coordinates(image, concept)
-        generate_html(section, stories, locations, image_filename, concept.get('theme_name', 'Daily NewsMap'))
+        generate_html(section, stories, locations, image_filename, concept.get('chosen_location', 'World Scene'))
         
         try:
             os.system('git add .')
-            os.system(f'git commit -m "Automated Scout Update"')
+            os.system(f'git commit -m "Automated Scout: {concept.get("chosen_location")}"')
             os.system('git push origin main')
         except:
             print("Git Push Failed.")
