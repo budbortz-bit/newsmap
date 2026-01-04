@@ -228,8 +228,7 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
     <!DOCTYPE html>
     <html>
     <head>
-        <title>NewsMap: {theme_name}</title>
-        <meta charset="UTF-8">
+        <title>NewsMap</title>  <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
             body {{ background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }}
