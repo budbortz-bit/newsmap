@@ -2,123 +2,264 @@
     <!DOCTYPE html>
     <html>
     <head>
-        <title>NewsMap: Waldo Mode</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>NewsMap: Front Page</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
-            body { background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }
-            .canvas-container { position: relative; width: 100%; max-width: 1200px; border: 4px solid #2b6cb0; border-radius: 12px; overflow: hidden; }
+            body { background: #f0f4f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px 0; margin: 0; }
+            h1 { color: #2d3748; margin-bottom: 20px; font-size: 24px; text-align: center; padding: 0 10px; }
+            
+            .canvas-container { 
+                position: relative; 
+                width: 100%; 
+                max-width: 1200px; 
+                border: 4px solid #2b6cb0; 
+                border-radius: 12px; 
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+                background: white; 
+                overflow: hidden; 
+                margin-bottom: 100px; 
+            }
+            
             .main-image { width: 100%; height: auto; display: block; }
             
-            /* MARKER CSS - FIXED FOR VISIBLE NUMBERS */
+            /* GLOBAL GHOST MARKER STYLE (Base for Desktop & Mobile) */
             .news-marker { 
                 position: absolute; 
-                width: 28px; height: 28px; 
-                background: #2b6cb0; 
-                border: 2px solid white; 
+                width: 26px; height: 26px; /* Default Desktop Size */
+                
+                /* The Ghost Effect */
+                background: rgba(66, 153, 225, 0.55); /* See-through Blue */
+                backdrop-filter: blur(3px);            /* Frosted Glass */
+                border: 1px solid rgba(255, 255, 255, 0.85); 
+                
                 border-radius: 50%; 
                 cursor: pointer; 
                 transform: translate(-50%, -50%); 
-                z-index: 10;
-                display: flex; 
-                justify-content: center; 
-                align-items: center;
-                color: white !important; 
-                font-weight: 900 !important; 
-                font-size: 14px !important; 
-                line-height: 28px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-                text-align: center;
+                z-index: 10; 
+                display: flex; justify-content: center; align-items: center;
+                color: white; font-weight: bold; font-size: 12px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             }
+            
+            /* HOVER / ACTIVE STATE (Becomes Solid & Large) */
             .news-marker:hover, .news-marker.active { 
-                transform: translate(-50%, -50%) scale(1.3); 
-                background: #eb4034; /* Changes to Waldo Red on hover */
+                transform: translate(-50%, -50%) scale(1.5); 
+                background: #2b6cb0;  /* Solid Blue */
+                opacity: 1;
+                z-index: 20; 
+                border: 2px solid white;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
             }
 
-            .story-card {
-                position: fixed; bottom: -100%; left: 0; right: 0;
-                background: white; padding: 20px; border-radius: 20px 20px 0 0;
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.2); transition: bottom 0.3s;
-                z-index: 1000; max-width: 600px; margin: 0 auto;
+            /* MOBILE TWEAKS (Just slightly smaller) */
+            @media (max-width: 768px) {
+                .news-marker { 
+                    width: 20px; height: 20px; 
+                    font-size: 10px; 
+                }
             }
+
+            /* MODAL / BOTTOM SHEET */
+            .story-card {
+                position: fixed;
+                bottom: -100%;
+                left: 0; right: 0;
+                background: white;
+                padding: 20px;
+                border-radius: 20px 20px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
+                transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                z-index: 1000;
+                max-width: 600px;
+                margin: 0 auto;
+            }
+
             .story-card.active { bottom: 0; }
-            .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.3); z-index: 900; display: none; }
+            
+            .overlay {
+                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0,0,0,0.3);
+                z-index: 900;
+                display: none;
+            }
             .overlay.active { display: block; }
-            .mnemonic-box { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin: 10px 0; font-size: 13px; font-style: italic; }
-            .read-btn { display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: bold; }
+
+            .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+            .story-tag { background: #bee3f8; color: #2b6cb0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+            .close-btn { background: none; border: none; font-size: 24px; color: #a0aec0; cursor: pointer; padding: 0; line-height: 1; }
+            
+            h3 { margin: 0 0 10px 0; font-size: 18px; color: #2d3748; line-height: 1.3; }
+            .mnemonic-box { background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #2c5282; font-style: italic; }
+            p { margin: 0 0 15px 0; font-size: 14px; line-height: 1.6; color: #4a5568; }
+            .read-btn { display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; box-sizing: border-box; }
+            .read-btn:hover { background: #3182ce; }
+
+            @media (min-width: 769px) {
+                .story-card {
+                    bottom: 20px; left: 50%; transform: translateX(-50%);
+                    width: 400px;
+                    border-radius: 12px;
+                    margin-bottom: -100%;
+                }
+                .story-card.active { margin-bottom: 0; bottom: 40px; }
+            }
         </style>
     </head>
     <body>
+        <h1>🗺️ NewsMap: Front Page</h1>
         <div class="canvas-container">
             <img src="images/index.png" class="main-image">
-    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 164%; left: 199%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 428%; left: 728%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 140%; left: 433%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 356%; left: 392%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 289%; left: 304%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 226%; left: 765%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 491%; left: 584%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 487%; left: 240%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 800%; left: 230%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 744%; left: 801%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
+    
+            <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 47.0%; left: 25.0%;">
+                1
+            </div>
+        
+            <div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 36.0%; left: 46.0%;">
+                2
+            </div>
+        
+            <div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 28.0%; left: 66.0%;">
+                3
+            </div>
+        
+            <div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 55.0%; left: 50.0%;">
+                4
+            </div>
+        
+            <div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 56.0%; left: 78.0%;">
+                5
+            </div>
+        
+            <div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 77.0%; left: 58.0%;">
+                6
+            </div>
+        
+            <div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 87.0%; left: 86.0%;">
+                7
+            </div>
+        
+            <div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 79.0%; left: 65.0%;">
+                8
+            </div>
+        
+            <div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 88.0%; left: 24.0%;">
+                9
+            </div>
+        
+            <div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 91.0%; left: 75.0%;">
+                10
+            </div>
+        </div><div class="overlay" onclick="closeAll()"></div>
             <div class="story-card" id="card-1">
-                <h3 style="margin-top:0;">Amid boos, Baylor's Nnaji debuts in loss at TCU - ESPN</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Baylor's Nnaji debuting in a loss at TCU from ESPN. 'Booed Bear' connects to the negative performance and the teams involved.</div>
-                <p>James Nnaji, the 7-foot center and 2023 NBA draft pick whose signing drew criticism from coaches across college basketball last month, debuted Saturda...</p>
-                <a href="https://www.espn.com/mens-college-basketball/story/_/id/47493605/james-nnaji-debuts-5-points-4-fouls-baylor-loss" target="_blank" class="read-btn">Read More</a>
+                <div class="card-header">
+                    <span class="story-tag">ESPN</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Amid boos, Baylor's Nnaji debuts in loss at TCU - ESPN</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The knotty wood sounds like 'Nnaji', the bay leaf represents Baylor, and the tea cup sounds like TCU. The 'boo' sign represents the boos from the crowd.</div>
+                <p>James Nnaji, the 7-foot center and 2023 NBA draft pick whose signing drew criticism from coaches across college basketball last month, debut...</p>
+                <a href="https://www.espn.com/mens-college-basketball/story/_/id/47493605/james-nnaji-debuts-5-points-4-fouls-baylor-loss" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-2">
-                <h3 style="margin-top:0;">Trump's isolationism meets his Venezuela exception - Axios</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Trump's isolationism encountering a 'Venezuela exception' as mentioned by Axios. The incomplete wall signifies the failed isolationism and the Venezuelan flag the exception.</div>
+                <div class="card-header">
+                    <span class="story-tag">Axios</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Trump's isolationism meets his Venezuela exception - Axios</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The trumpet for Trump, the miniature island for isolationism, the jewel vase for Venezuela, and the 'X' for exception.</div>
                 <p>Trump built his brand on rejecting regime change and intervention....</p>
-                <a href="https://www.axios.com/2026/01/03/trump-venezuela-nation-building-isolationism" target="_blank" class="read-btn">Read More</a>
+                <a href="https://www.axios.com/2026/01/03/trump-venezuela-nation-building-isolationism" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-3">
-                <h3 style="margin-top:0;">Measles exposure found in NC - WRAL</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents a measles exposure found in North Carolina, as reported by WRAL. The flashing sign highlights the urgency and location.</div>
-                <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Services....</p>
-                <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank" class="read-btn">Read More</a>
+                <div class="card-header">
+                    <span class="story-tag">WRAL.com</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Measles exposure found in NC - WRAL</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The polka-dotted cookie represents measles in NC, the 'W' railing is for WRAL, and the flash bulb symbolizes exposure.</div>
+                <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Se...</p>
+                <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-4">
-                <h3 style="margin-top:0;">Panthers vs Buccaneers Predictions, Picks & Best Bets for Today — NFL Week 18 - Covers.com</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Panthers vs. Buccaneers NFL game and betting predictions from Covers.com. The fighting animals represent the competition and the betting slips, the stakes.</div>
-                <p>Expect a solid rushing game for Panthers running back Chuba Hubbard against the Buccaneers in our picks, odds & expert predictions for Saturday, Janua...</p>
-                <a href="https://www.covers.com/nfl/panthers-vs-buccaneers-predictions-picks-best-bets-today-january-3-2026" target="_blank" class="read-btn">Read More</a>
+                <div class="card-header">
+                    <span class="story-tag">Covers.com</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Panthers vs Buccaneers Predictions, Picks & Best Bets for Today — NFL Week 18 - Covers.com</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The toy panther for Panthers, the pirate ship for Buccaneers, the football rug for NFL, the 'WEEK 18' embroidery for Week 18, and the blanket itself for Covers.</div>
+                <p>Expect a solid rushing game for Panthers running back Chuba Hubbard against the Buccaneers in our picks, odds & expert predictions for Satur...</p>
+                <a href="https://www.covers.com/nfl/panthers-vs-buccaneers-predictions-picks-best-bets-today-january-3-2026" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-5">
-                <h3 style="margin-top:0;">Removing Maduro Was ‘Donroe Doctrine’ in Action, Trump Says - The Wall Street Journal</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Trump stating that removing Maduro was a 'Monroe Doctrine' in action, as reported by The Wall Street Journal. Don Quixote symbolizes the idealistic but possibly misguided action.</div>
+                <div class="card-header">
+                    <span class="story-tag">The Wall Street Journal</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Removing Maduro Was ‘Donroe Doctrine’ in Action, Trump Says - The Wall Street Journal</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Trumpet for Trump, mad sauce for Maduro, donut with roe for Donroe, brick wall for Wall Street, and the scroll for doctrine.</div>
                 <p>No description available....</p>
-                <a href="https://www.wsj.com/livecoverage/venezuela-strikes/card/removing-maduro-was-donroe-doctrine-in-action-trump-says-ZfqEF5T6l1aSvpej6rxP" target="_blank" class="read-btn">Read More</a>
+                <a href="https://www.wsj.com/livecoverage/venezuela-strikes/card/removing-maduro-was-donroe-doctrine-in-action-trump-says-ZfqEF5T6l1aSvpej6rxP" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-6">
-                <h3 style="margin-top:0;">More Saudi airstrikes hit separatist positions in Yemeni port city - ABC News</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Saudi airstrikes hitting separatist positions in a Yemeni port city, as reported by ABC News. The paper airplane and containers symbolize the attack and location.</div>
+                <div class="card-header">
+                    <span class="story-tag">ABC News</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>More Saudi airstrikes hit separatist positions in Yemeni port city - ABC News</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The sad kettle for Saudi, toy planes for airstrikes, separated soldiers for separatists, yummy pastry for Yemeni, the puddle for port city, and ABC blocks for ABC News.</div>
                 <p>Yemen has been engulfed in civil war for more than a decade....</p>
-                <a href="https://abcnews.go.com/International/wireStory/saudi-airstrikes-hit-separatist-positions-yemeni-port-city-128872012" target="_blank" class="read-btn">Read More</a>
+                <a href="https://abcnews.go.com/International/wireStory/saudi-airstrikes-hit-separatist-positions-yemeni-port-city-128872012" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-7">
-                <h3 style="margin-top:0;">Tony Dokoupil’s ‘CBS Evening News’ Run to Start Early Amid Venezuela Chaos - Variety</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Tony Dokoupil's 'CBS Evening News' run starting early amid Venezuela chaos, as reported by Variety. The marathon signifies his career move, and the flags, the reason for the early start.</div>
-                <p>Tony Dokoupil's run on 'CBS Evening News' will start two days earlier than expected as media outlets scramble after U.S. military action in Venezuela...</p>
-                <a href="https://variety.com/2026/tv/news/tony-dokoupil-cbs-evening-news-early-venezuela-1236622872/" target="_blank" class="read-btn">Read More</a>
+                <div class="card-header">
+                    <span class="story-tag">Variety</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Tony Dokoupil’s ‘CBS Evening News’ Run to Start Early Amid Venezuela Chaos - Variety</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The 'dough-cup-pile' sounds like Dokoupil, the CBS eye on the cup for CBS News, the jewel vase for Venezuela, the tangled string for chaos, and the cereal box for Variety.</div>
+                <p>Tony Dokoupil's run on 'CBS Evening News' will start two days earlier than expected as media outlets scramble after U.S. military action in ...</p>
+                <a href="https://variety.com/2026/tv/news/tony-dokoupil-cbs-evening-news-early-venezuela-1236622872/" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-8">
-                <h3 style="margin-top:0;">National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the National Society of Film Critics Voting taking place, updating live, as reported by The Hollywood Reporter. Their use of ballots as fans symbolizes the critics' activity and their exasperated faces represent the chaotic Hollywood backdrop.</div>
-                <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinematography....</p>
-                <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank" class="read-btn">Read More</a>
+                <div class="card-header">
+                    <span class="story-tag">Hollywood Reporter</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Film reel figures for film critics, the ballot box for voting, and the Hollywood sign with a microphone for Hollywood Reporter.</div>
+                <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinemato...</p>
+                <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-9">
-                <h3 style="margin-top:0;">Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents measles exposure at a popular downtown restaurant, Best Buy, and library, as reported by WYFF News 4. The rash-covered customer connects the measles exposure to those locations.</div>
-                <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the disease....</p>
-                <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank" class="read-btn">Read More</a>
+                <div class="card-header">
+                    <span class="story-tag">WYFF4 Greenville</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Polka dots for measles, flash for exposure, toy chef for restaurant, shopping cart for Best Buy, book for library, and the 'Y' twig with 4 for WYFF News 4.</div>
+                <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the dise...</p>
+                <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
             <div class="story-card" id="card-10">
-                <h3 style="margin-top:0;">‘Avatar: Fire And Ash’ Burning Trail To $302M U.S.; ‘Housemaid’ Holding Strong, 2026 Starts +22% Over ’25 – Saturday Box Office Update - Deadline</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Avatar: Fire And Ash's' box office success and 'Housemaid' holding strong with a 2026 start +22% over 2025, as reported by Deadline. The burning screen symbolizes the hot box office, and the maid represents the steady performance of the latter film.</div>
+                <div class="card-header">
+                    <span class="story-tag">Deadline</span>
+                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                </div>
+                <h3>‘Avatar: Fire And Ash’ Burning Trail To $302M U.S.; ‘Housemaid’ Holding Strong, 2026 Starts +22% Over ’25 – Saturday Box Office Update - Deadline</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> The blue alien for Avatar, campfire for Fire and Ash, '302M' car for $302M, maid doll for Housemaid, calendar pages for years, ticket booth for box office, and the dried vine for Deadline.</div>
                 <p>'Avatar: Fire and Ash' has a shot at crossing $300M at the U.S. box office during the first weekend of 2026....</p>
-                <a href="http://deadline.com/2026/01/box-office-avatar-fire-and-ash-2026-first-weekend-1236660722/" target="_blank" class="read-btn">Read More</a>
+                <a href="http://deadline.com/2026/01/box-office-avatar-fire-and-ash-2026-first-weekend-1236660722/" target="_blank" class="read-btn">Read Full Story</a>
             </div>
         
         <script>
@@ -128,11 +269,17 @@
                 document.getElementById('marker-' + id).classList.add('active');
                 document.querySelector('.overlay').classList.add('active');
             }
+
             function closeAll() {
-                document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
-                document.querySelectorAll('.news-marker').forEach(m => m.classList.remove('active'));
-                document.querySelector('.overlay').classList.remove('active');
+                const cards = document.querySelectorAll('.story-card');
+                const markers = document.querySelectorAll('.news-marker');
+                const overlay = document.querySelector('.overlay');
+                
+                cards.forEach(c => c.classList.remove('active'));
+                markers.forEach(m => m.classList.remove('active'));
+                overlay.classList.remove('active');
             }
         </script>
-    </body></html>
+    </body>
+    </html>
     
