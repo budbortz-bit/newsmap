@@ -80,22 +80,53 @@ def fetch_stories(category, count):
 
 def generate_memory_palace_concept(stories, count):
     wait_for_api_cooldown()
-    print("  Scouting Locations & Analyzing Vibe (Logic AI)...")
-    story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
-    prompt = f"""
-    Analyze these headlines.
-    1. Pick an International location if mentioned, or a Cinematic Movie Scene vibe.
-    2. Design a 'Sketchy Medical' style scene. 
-    3. Return JSON only with 'chosen_location', 'theme_name', 'setting_description', and 'story_elements' (id, visual_cue, mnemonic_explanation, assigned_zone).
+    print("  Scouting Locations & Designing the World (Logic AI)...")
     
-    Headlines:
+    story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
+
+    prompt = f"""
+    You are a Cinematic Location Scout and Mnemonic Artist.
+    
+    TASK:
+    1. ANALYZE the headlines for Geographic or Narrative hooks:
     {story_text}
+
+    2. CHOOSE THE SETTING:
+       - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
+       - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
+    
+    3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
+       - Describe the object CLEARLY and uniquely.
+       - ASSIGN ZONES: Spread them across the image (Foreground Left, Center, Top Right, etc.).
+
+    Return JSON format only:
+    {{
+        "chosen_location": "Location Name",
+        "theme_name": "Internal Theme Title",
+        "setting_description": "Vivid description of architecture and atmosphere.",
+        "story_elements": [
+            {{ 
+                "id": 1, 
+                "visual_cue": "Specific object description", 
+                "mnemonic_explanation": "Link to headline",
+                "assigned_zone": "Specific Zone" 
+            }}
+        ]
+    }}
     """
+    
     try:
-        response = genai_client.models.generate_content(model='gemini-2.0-flash', contents=prompt, config=types.GenerateContentConfig(response_mime_type="application/json", temperature=1.0))
+        response = genai_client.models.generate_content(
+            model='gemini-2.0-flash',
+            contents=prompt,
+            config=types.GenerateContentConfig(response_mime_type="application/json", temperature=1.0)
+        )
         data = json.loads(clean_json_text(response.text))
-        return data[0] if isinstance(data, list) else data
-    except: return None
+        if isinstance(data, list): data = data[0]
+        return data
+    except Exception as e:
+        print(f"  Concept Gen Error: {e}")
+        return None
 
 def generate_image(scene_concept, count):
     wait_for_api_cooldown()
