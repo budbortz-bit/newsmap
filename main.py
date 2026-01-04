@@ -35,8 +35,7 @@ SECTIONS = [
         "name": "Front Page",
         "filename": "index.html",
         "category": None, 
-        "story_count": 10,
-        "theme": "A busy contemporary City Park on a sunny day. Wide open green spaces, detailed, organic, lively."
+        "story_count": 10
     }
 ]
 
@@ -59,9 +58,8 @@ def clean_json_text(text):
     return text.strip()
 
 def fetch_stories(category, count):
-    """Fetch stories from NewsAPI"""
     stories = []
-    print(f"  Fetching {count} stories for category: {category if category else 'General'}...")
+    print(f"  Fetching {count} stories...")
     try:
         if category:
             top_headlines = newsapi.get_top_headlines(category=category, country='us', page_size=15)
@@ -93,71 +91,92 @@ def fetch_stories(category, count):
         })
     return stories
 
-def generate_memory_palace_concept(stories, theme, count):
+def generate_memory_palace_concept(stories, count):
     wait_for_api_cooldown()
-    print("  Designing the NewsMap (Text AI)...")
+    print("  Designing a Unique Sketchy-Style World (Logic AI)...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
-    zones = [
-        "Foreground Left", "Foreground Center", "Foreground Right",
-        "Midground Far Left", "Midground Left", "Midground Right", "Midground Far Right",
-        "Background Left", "Background Center", "Background Right"
-    ]
 
+    # TWEAKED PROMPT: Added instruction for "Wildly Different" settings
     prompt = f"""
-    Here are exactly {count} headlines:
+    You are a master of the Method of Loci and a medical mnemonic illustrator.
+    
+    TASK:
+    1. Invent a HIGH-CONCEPT UNIQUE THEME/SETTING for today's news. 
+       CRITICAL: Avoid generic parks or offices. Choose something EXOTIC (e.g., 'A Cyberpunk Night Market', 'A 17th Century Pirate Ship', 'A Surreal Candyland', 'A Space Station Greenhouse', 'A Mayan Jungle Temple', 'An Arctic Research Base').
+    
+    2. For these {count} headlines:
     {story_text}
 
-    Create a "Memory Palace" scene. Theme: {theme}
+    3. For EACH story, invent a **Literal Visual Pun** or **Absurd Character**.
+       - RULE 1: Everything must be grounded (sitting, standing, or held). 
+       - RULE 2: Use "Sketchy Medical" style logic—surreal, funny, and highly visual.
     
-    Task:
-    1. Invent a cohesive setting based on the theme.
-    2. For EACH story, invent a **Visual Mnemonic Symbol**.
-       - **RULE 1 (Grounding)**: The object must sit on something or be held. NO floating.
-       - **RULE 2 (Connection)**: Use PUNS, SOUND-ALIKES, or LITERAL VISUALS.
-    3. Provide a short "mnemonic_explanation".
-
     Return JSON format only:
     {{
-        "setting_description": "A detailed description of the setting...",
+        "theme_name": "Title of the Scene",
+        "setting_description": "Detailed description of the architecture, era, lighting, and atmosphere.",
         "story_elements": [
             {{ 
                 "id": 1, 
-                "visual_cue": "A large Bull sleeping on a park bench", 
-                "mnemonic_explanation": "Bull represents the Bull Market; Sleeping suggests the market is dormant.",
+                "visual_cue": "A giant lobster wearing a crown", 
+                "mnemonic_explanation": "Lobster represents the Maine election results; Crown represents the victory.",
                 "assigned_zone": "Foreground Left" 
-            }},
-            ...
+            }}
         ]
     }}
     """
     
     try:
         response = genai_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents=prompt,
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
-        data = json.loads(clean_json_text(response.text))
-        return data
+        return json.loads(clean_json_text(response.text))
     except Exception as e:
         print(f"  Concept Gen Error: {e}")
         return None
 
 def generate_image(scene_concept, count):
     wait_for_api_cooldown()
-    print("  Drawing the NewsMap (Image AI)...")
     
-    visual_prompt = f"A high-quality, FULL COLOR digital illustration of a SINGLE, UNIFIED SCENE. \n"
-    visual_prompt += f"Format: Standard 4:3 Landscape aspect ratio (TV format). \n"
-    visual_prompt += f"Style: Educational medical illustration style (like a biology textbook or 'Sketchy Medical'). \n"
-    visual_prompt += f"Colors: VIVID, HIGH SATURATION, FULL COLOR. \n"
-    visual_prompt += f"NEGATIVE PROMPT: NO floating objects, NO hovering items, NO text, NO words, NO letters, NO numbers, NO labels, NO signage, NO writing. NO comic book panels, NO grid, NO collage. \n\n"
-    visual_prompt += f"Setting: {scene_concept['setting_description']}\n\n"
-    visual_prompt += f"Integrate these {count} distinct objects seamlessly into the scene:\n"
-    for element in scene_concept['story_elements']:
-        visual_prompt += f"- Located in the {element['assigned_zone']}: {element['visual_cue']} (Integrated into the environment, NO TEXT)\n"
-    visual_prompt += "\nEnsure all objects are grounded (resting on surfaces or held by characters). Consistent lighting."
+    # Use .get() to prevent KeyError if the AI missed a field
+    theme = scene_concept.get('theme_name', 'Daily NewsMap')
+    setting = scene_concept.get('setting_description', 'A detailed environment')
+    
+    print(f"  Drawing the NewsMap: {theme} (Image AI)...")
+    
+    # 1. World-Building Context
+    visual_prompt = f"A SINGLE UNIFIED SCENE set in: {setting}.\n"
+    visual_prompt += f"THEME: This is a {theme} themed environment.\n"
+    
+    # 2. Sketchy Style Keywords
+    visual_prompt += (
+        "STYLE: Professional educational mnemonic illustration, 'Sketchy Medical' style. "
+        "Characterized by vibrant digital art, clean black ink outlines, bold saturated colors, "
+        "and flat cell-shading. Perspective: Isometric wide-angle.\n"
+    )
+    
+    # 3. Framing
+    visual_prompt += "Format: 4:3 Landscape aspect ratio. Lighting must be consistent with the setting.\n"
+    
+    # 4. Integrated Objects
+    visual_prompt += f"\nINTEGRATE THESE {count} SYMBOLIC OBJECTS NATURALLY INTO THE SCENE:\n"
+    elements = scene_concept.get('story_elements', [])
+    for element in elements:
+        cue = element.get('visual_cue', 'A mystery object')
+        zone = element.get('assigned_zone', 'center')
+        visual_prompt += f"- In the {zone}: {cue} (Grounded, NO TEXT).\n"
+    
+    # 5. Negative Prompting (Directly in text)
+    visual_prompt += (
+        "\nIMPORTANT RULES:\n"
+        "- NO text, NO words, NO labels, NO signage.\n"
+        "- NO white backgrounds; a fully realized environment only.\n"
+        "- Everything must be grounded. NO floating items.\n"
+        "- ONE unified scene, not a grid or collage."
+    )
 
     try:
         response = genai_client.models.generate_content(
@@ -177,177 +196,91 @@ def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
     print("  Locating mnemonics (Vision AI)...")
     items_to_find = []
-    for elem in scene_concept['story_elements']:
-        items_to_find.append(f"ID {elem['id']}: {elem['visual_cue']} (Look in: {elem['assigned_zone']})")
+    for elem in scene_concept.get('story_elements', []):
+        items_to_find.append(f"ID {elem['id']}: {elem['visual_cue']} (Zone: {elem['assigned_zone']})")
     
     items_str = "\n".join(items_to_find)
 
     prompt = f"""
-    Look at this illustration. Find the location of specific objects.
-    I have provided HINTS for where each object is located.
+    Look at this illustration. Find the (x, y) coordinates for the CENTER of each object.
     List:
     {items_str}
-    For EACH ID:
-    1. Locate the object.
-    2. Return the (x, y) coordinates of the CENTER of that object.
-    3. Calculate x and y as PERCENTAGES (0 to 100) from the top-left corner.
+    
     Return JSON only:
     {{ "locations": [ {{ "id": 1, "x": 10, "y": 20 }}, ... ] }}
+    X and Y must be percentages (0-100).
     """
 
     try:
         response = genai_client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-2.0-flash',
             contents=[prompt, image],
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         data = json.loads(clean_json_text(response.text))
-        return data['locations']
+        return data.get('locations', [])
     except Exception as e:
         print(f"  Vision Analysis Error: {e}")
         return []
 
-def generate_html(section_config, stories, locations, image_filename):
-    """Generate HTML: Unified Ghost Style (Translucent by default)"""
-
+def generate_html(section_config, stories, locations, image_filename, theme_name):
     html = f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <title>NewsMap: {section_config['name']}</title>
+        <title>NewsMap: {theme_name}</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <style>
-            body {{ background: #f0f4f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px 0; margin: 0; }}
-            h1 {{ color: #2d3748; margin-bottom: 20px; font-size: 24px; text-align: center; padding: 0 10px; }}
-            
-            .canvas-container {{ 
-                position: relative; 
-                width: 100%; 
-                max-width: 1200px; 
-                border: 4px solid #2b6cb0; 
-                border-radius: 12px; 
-                box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
-                background: white; 
-                overflow: hidden; 
-                margin-bottom: 100px; 
-            }}
-            
+            body {{ background: #f0f4f8; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px 0; }}
+            .canvas-container {{ position: relative; width: 95%; max-width: 1100px; border: 5px solid #2d3748; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
             .main-image {{ width: 100%; height: auto; display: block; }}
-            
-            /* GLOBAL GHOST MARKER STYLE (Base for Desktop & Mobile) */
             .news-marker {{ 
-                position: absolute; 
-                width: 26px; height: 26px; /* Default Desktop Size */
-                
-                /* The Ghost Effect */
-                background: rgba(66, 153, 225, 0.55); /* See-through Blue */
-                backdrop-filter: blur(3px);            /* Frosted Glass */
-                border: 1px solid rgba(255, 255, 255, 0.85); 
-                
-                border-radius: 50%; 
-                cursor: pointer; 
-                transform: translate(-50%, -50%); 
-                z-index: 10; 
+                position: absolute; width: 28px; height: 28px; 
+                background: rgba(66, 153, 225, 0.8); backdrop-filter: blur(2px);
+                border: 2px solid white; border-radius: 50%; color: white;
                 display: flex; justify-content: center; align-items: center;
-                color: white; font-weight: bold; font-size: 12px;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-                transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                font-weight: bold; cursor: pointer; transform: translate(-50%, -50%);
+                transition: 0.2s; z-index: 10;
             }}
+            .news-marker:hover, .news-marker.active {{ background: #2b6cb0; transform: translate(-50%, -50%) scale(1.3); z-index: 20; }}
             
-            /* HOVER / ACTIVE STATE (Becomes Solid & Large) */
-            .news-marker:hover, .news-marker.active {{ 
-                transform: translate(-50%, -50%) scale(1.5); 
-                background: #2b6cb0;  /* Solid Blue */
-                opacity: 1;
-                z-index: 20; 
-                border: 2px solid white;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            }}
-
-            /* MOBILE TWEAKS (Just slightly smaller) */
-            @media (max-width: 768px) {{
-                .news-marker {{ 
-                    width: 20px; height: 20px; 
-                    font-size: 10px; 
-                }}
-            }}
-
-            /* MODAL / BOTTOM SHEET */
             .story-card {{
-                position: fixed;
-                bottom: -100%;
-                left: 0; right: 0;
-                background: white;
-                padding: 20px;
-                border-radius: 20px 20px 0 0;
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.2);
-                transition: bottom 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-                z-index: 1000;
-                max-width: 600px;
-                margin: 0 auto;
+                position: fixed; bottom: -100%; left: 0; right: 0;
+                background: white; padding: 25px; border-radius: 20px 20px 0 0;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.3); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                z-index: 1000; max-width: 600px; margin: 0 auto;
             }}
-
             .story-card.active {{ bottom: 0; }}
-            
-            .overlay {{
-                position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0,0,0,0.3);
-                z-index: 900;
-                display: none;
-            }}
+            .overlay {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; z-index: 900; }}
             .overlay.active {{ display: block; }}
-
-            .card-header {{ display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }}
-            .story-tag {{ background: #bee3f8; color: #2b6cb0; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; }}
-            .close-btn {{ background: none; border: none; font-size: 24px; color: #a0aec0; cursor: pointer; padding: 0; line-height: 1; }}
-            
-            h3 {{ margin: 0 0 10px 0; font-size: 18px; color: #2d3748; line-height: 1.3; }}
-            .mnemonic-box {{ background: #ebf8ff; border-left: 4px solid #4299e1; padding: 10px; margin-bottom: 12px; font-size: 13px; color: #2c5282; font-style: italic; }}
-            p {{ margin: 0 0 15px 0; font-size: 14px; line-height: 1.6; color: #4a5568; }}
-            .read-btn {{ display: block; width: 100%; background: #4299e1; color: white; text-align: center; padding: 12px 0; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 15px; box-sizing: border-box; }}
-            .read-btn:hover {{ background: #3182ce; }}
-
-            @media (min-width: 769px) {{
-                .story-card {{
-                    bottom: 20px; left: 50%; transform: translateX(-50%);
-                    width: 400px;
-                    border-radius: 12px;
-                    margin-bottom: -100%;
-                }}
-                .story-card.active {{ margin-bottom: 0; bottom: 40px; }}
-            }}
+            .mnemonic-box {{ background: #ebf8ff; border-left: 5px solid #4299e1; padding: 12px; margin: 15px 0; font-style: italic; color: #2c5282; }}
+            .read-btn {{ display: block; background: #4299e1; color: white; text-align: center; padding: 15px; border-radius: 10px; text-decoration: none; font-weight: bold; }}
         </style>
     </head>
     <body>
-        <h1>🗺️ NewsMap: Front Page</h1>
+        <h1 style="color: #2d3748; text-align: center; padding: 0 20px;">🗺️ {theme_name}</h1>
         <div class="canvas-container">
             <img src="images/{image_filename}" class="main-image">
     """
 
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 50, 'y': 50})
-        html += f"""
-            <div class="news-marker" onclick="openStory({story['id']})" id="marker-{story['id']}" style="top: {loc['y']}%; left: {loc['x']}%;">
-                {story['id']}
-            </div>
-        """
-    html += "</div>" # End canvas-container
-
-    html += '<div class="overlay" onclick="closeAll()"></div>'
+        html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
+    
+    html += '</div><div class="overlay" onclick="closeAll()"></div>'
     
     for story in stories:
-        mnemonic_text = story.get('mnemonic_explanation', 'Visual mnemonic for this story.')
         html += f"""
             <div class="story-card" id="card-{story['id']}">
-                <div class="card-header">
-                    <span class="story-tag">{story['source']}</span>
-                    <button class="close-btn" onclick="closeAll()">&times;</button>
+                <div style="display:flex; justify-content:space-between;">
+                    <strong style="color:#4299e1;">{story['source']}</strong>
+                    <button onclick="closeAll()" style="border:none; background:none; font-size:24px; cursor:pointer;">&times;</button>
                 </div>
                 <h3>{story['title']}</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> {mnemonic_text}</div>
-                <p>{story['description'][:140]}...</p>
-                <a href="{story['url']}" target="_blank" class="read-btn">Read Full Story</a>
+                <div class="mnemonic-box">🧠 Hook: {story.get('mnemonic_explanation', '')}</div>
+                <p>{story['description']}</p>
+                <a href="{story['url']}" target="_blank" class="read-btn">Full Article</a>
             </div>
         """
 
@@ -359,54 +292,52 @@ def generate_html(section_config, stories, locations, image_filename):
                 document.getElementById('marker-' + id).classList.add('active');
                 document.querySelector('.overlay').classList.add('active');
             }
-
             function closeAll() {
-                const cards = document.querySelectorAll('.story-card');
-                const markers = document.querySelectorAll('.news-marker');
-                const overlay = document.querySelector('.overlay');
-                
-                cards.forEach(c => c.classList.remove('active'));
-                markers.forEach(m => m.classList.remove('active'));
-                overlay.classList.remove('active');
+                document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
+                document.querySelectorAll('.news-marker').forEach(m => m.classList.remove('active'));
+                document.querySelector('.overlay').classList.remove('active');
             }
         </script>
-    </body>
-    </html>
+    </body></html>
     """
-
     with open(section_config['filename'], 'w', encoding='utf-8') as f:
         f.write(html)
-    print(f"  Generated {section_config['filename']} successfully!")
 
 def main():
-    print("Starting NewsMap Site Generation...")
-    
+    print("Starting NewsMap Sketchy Generation...")
     for section in SECTIONS:
-        print(f"\n--- PROCESSING SECTION: {section['name']} ---")
-        
         stories = fetch_stories(section['category'], section['story_count'])
         if not stories: continue
             
-        concept = generate_memory_palace_concept(stories, section['theme'], section['story_count'])
+        concept = generate_memory_palace_concept(stories, section['story_count'])
         if not concept: continue
         
+        # Merge mnemonics
         for story in stories:
-            for elem in concept['story_elements']:
+            for elem in concept.get('story_elements', []):
                 if elem['id'] == story['id']:
                     story['mnemonic_explanation'] = elem.get('mnemonic_explanation', '')
-                    break
         
         image = generate_image(concept, section['story_count'])
         if not image: continue
         
         image_filename = f"{section['filename'].replace('.html', '.png')}"
-        image_path = images_dir / image_filename
-        image.save(image_path, "PNG")
+        image.save(images_dir / image_filename)
         
         locations = find_coordinates(image, concept)
-        generate_html(section, stories, locations, image_filename)
-    
-    print("\nNewsMap generated! Open index.html to browse.")
+        
+        # Use .get() for the final HTML title to prevent any potential KeyErrors
+        safe_theme_name = concept.get('theme_name', 'Daily NewsMap')
+        generate_html(section, stories, locations, image_filename, safe_theme_name)
+        
+        try:
+            os.system('git add .')
+            os.system(f'git commit -m "Auto Update: {safe_theme_name}"')
+            os.system('git push origin main')
+        except:
+            print("Git Push Failed.")
+        
+    print("\nGeneration Complete!")
 
 if __name__ == "__main__":
     main()
