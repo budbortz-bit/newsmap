@@ -49,7 +49,6 @@ def wait_for_api_cooldown():
 
 def clean_json_text(text):
     text = text.strip()
-    # Remove markdown code blocks if present
     if "```json" in text:
         text = text.split("```json")[1].split("```")[0]
     elif "```" in text:
@@ -103,23 +102,25 @@ def generate_memory_palace_concept(stories, count):
     1. ANALYZE the headlines for Geographic or Narrative hooks:
     {story_text}
 
-    2. CHOOSE THE SETTING using this hierarchy:
-       - OPTION A (International): If any headline is international, pick that country's most visually iconic setting (e.g., A bustling Tokyo street, a Parisian cafe, the Great Wall, an Alpine peak).
-       - OPTION B (Cinematic): If all news is domestic, pick the headline that would make the most EPIC MOVIE SCENE and build the world around that (e.g., A high-stakes courtroom, a futuristic Silicon Valley lab, a dusty Nevada desert standoff).
+    2. CHOOSE THE SETTING:
+       - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
+       - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment (e.g. Space Station, Western Desert, Cyberpunk City).
     
-    3. THE SKETCHY TWIST: Once the location is chosen, make it SURREAL and VIBRANT in the 'Sketchy Medical' style.
+    3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
+       - IMPORTANT: Describe the object CLEARLY (e.g., 'A giant gold trophy', not just 'success').
+       - ASSIGN ZONES: Spread them out (Foreground Left, Center, Top Right, etc.).
 
     Return JSON format only:
     {{
-        "chosen_location": "Name of the city/country or movie genre chosen.",
-        "theme_name": "Cinematic Title for the Scene",
-        "setting_description": "Vivid description of architecture, weather, and era.",
+        "chosen_location": "Location Name",
+        "theme_name": "Title",
+        "setting_description": "Detailed visual setting.",
         "story_elements": [
             {{ 
                 "id": 1, 
-                "visual_cue": "Absurd character or literal pun (Grounded)", 
+                "visual_cue": "Specific detailed object description", 
                 "mnemonic_explanation": "Link to headline",
-                "assigned_zone": "Foreground Left" 
+                "assigned_zone": "Specific Zone" 
             }}
         ]
     }}
@@ -132,12 +133,7 @@ def generate_memory_palace_concept(stories, count):
             config=types.GenerateContentConfig(response_mime_type="application/json", temperature=1.0)
         )
         data = json.loads(clean_json_text(response.text))
-        
-        # FIX: Handle if AI returns a list instead of a dict
-        if isinstance(data, list):
-            data = data[0]
-            
-        print(f"  Location Scout: {data.get('chosen_location', 'Dynamic Setting')}")
+        if isinstance(data, list): data = data[0]
         return data
     except Exception as e:
         print(f"  Concept Gen Error: {e}")
@@ -178,10 +174,22 @@ def generate_image(scene_concept, count):
 def find_coordinates(image, scene_concept):
     wait_for_api_cooldown()
     print("  Locating mnemonics (Vision AI)...")
+    
+    # We ask the Vision AI to specifically find the visual_cues we just generated
     items_to_find = [f"ID {e['id']}: {e['visual_cue']}" for e in scene_concept.get('story_elements', [])]
     items_str = "\n".join(items_to_find)
 
-    prompt = f"Find (x, y) coordinates for the CENTER of each object. Return JSON only:\n{{ 'locations': [ {{ 'id': 1, 'x': 10, 'y': 20 }}, ... ] }}\nX/Y are 0-100.\n{items_str}"
+    prompt = f"""
+    Look at this illustration. Find the exact (x, y) coordinates for the center of each specific object listed below.
+    Be precise. If an object is not found, estimate its location based on the 'assigned_zone' from the concept.
+    
+    List to find:
+    {items_str}
+    
+    Return JSON format only:
+    {{ "locations": [ {{ "id": 1, "x": 10, "y": 20 }}, ... ] }}
+    X and Y must be percentages (0-100).
+    """
 
     try:
         response = genai_client.models.generate_content(
@@ -212,20 +220,21 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .news-marker {{ 
                 position: absolute; width: 34px; height: 34px; 
                 background: rgba(66, 153, 225, 0.45); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-                border: 2px solid rgba(255, 255, 255, 0.7); border-radius: 50%; color: white;
+                border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%; color: white;
                 display: flex; justify-content: center; align-items: center; font-weight: bold; 
-                cursor: pointer; transform: translate(-50%, -50%); transition: 0.2s; z-index: 10;
+                cursor: pointer; transform: translate(-50%, -50%); transition: 0.2s; z-index: 100;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
             }}
-            .news-marker:hover, .news-marker.active {{ background: rgba(43, 108, 176, 0.85); transform: translate(-50%, -50%) scale(1.2); z-index: 20; }}
+            .news-marker:hover, .news-marker.active {{ background: rgba(43, 108, 176, 0.9); transform: translate(-50%, -50%) scale(1.3); z-index: 200; border-color: white; }}
 
             @media (max-width: 600px) {{
-                .news-marker {{ width: 24px; height: 24px; font-size: 11px; }}
+                .news-marker {{ width: 26px; height: 26px; font-size: 12px; }}
                 h1 {{ font-size: 1.4rem; padding: 0 15px; }}
             }}
             
             .story-card {{
                 position: fixed; bottom: -100%; left: 0; right: 0; background: white; padding: 25px; border-radius: 25px 25px 0 0;
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.3); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.4); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
                 z-index: 1000; max-width: 600px; margin: 0 auto;
             }}
             .story-card.active {{ bottom: 0; }}
@@ -242,7 +251,8 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
     """
 
     for story in stories:
-        loc = next((l for l in locations if l['id'] == story['id']), {'x': 50, 'y': 50})
+        # Find location or default to a spread-out pattern
+        loc = next((l for l in locations if l['id'] == story['id']), {'x': 10 * story['id'], 'y': 50})
         html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
     
     html += '</div><div class="overlay" onclick="closeAll()"></div>'
@@ -255,7 +265,7 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">{story['title']}</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> {story.get('mnemonic_explanation', 'Mnemonic visual.')}</div>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> {story.get('mnemonic_explanation', 'Visualizing the news.')}</div>
                 <p>{story['description']}</p>
                 <a href="{story['url']}" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
@@ -308,7 +318,7 @@ def main():
         
         try:
             os.system('git add .')
-            os.system(f'git commit -m "Automated Scout: {concept.get("chosen_location")}"')
+            os.system(f'git commit -m "Automated Scout Update"')
             os.system('git push origin main')
         except:
             print("Git Push Failed.")
