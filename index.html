@@ -1,0 +1,187 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>NewsMap: Front Page</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <style>
+            body { background: #f0f4f8; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; display: flex; flex-direction: column; align-items: center; padding: 20px 0; margin: 0; }
+            
+            h1 { color: #2d3748; margin-bottom: 20px; font-size: 24px; text-align: center; padding: 0 10px; }
+            
+            .canvas-container { 
+                position: relative; 
+                width: 100%; 
+                max-width: 1200px; 
+                border: 4px solid #2b6cb0; 
+                border-radius: 12px; 
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1); 
+                background: white; 
+                overflow: hidden; 
+                margin-bottom: 50px; 
+                box-sizing: border-box; 
+            }
+            
+            .main-image { width: 100%; height: auto; display: block; }
+            
+            /* Markers */
+            .news-marker { position: absolute; width: 32px; height: 32px; background: rgba(66, 153, 225, 0.85); border: 2px solid #fff; border-radius: 50%; cursor: pointer; transform: translate(-50%, -50%); transition: all 0.2s ease; z-index: 10; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
+            .news-marker:hover { background: #2b6cb0; transform: translate(-50%, -50%) scale(1.2); z-index: 30; border-color: #bee3f8; }
+            .marker-number { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; color: white; font-weight: bold; font-size: 14px; }
+            
+            /* --- POPUP LOGIC --- */
+            .summary-box { position: absolute; width: 300px; background: white; color: #2d3748; padding: 16px; border-radius: 8px; box-shadow: 0 15px 30px rgba(0,0,0,0.25); opacity: 0; visibility: hidden; transition: opacity 0.2s; pointer-events: auto; z-index: 20; text-align: left; border: 1px solid #e2e8f0; }
+            
+            /* Positioning Classes (Up/Down/Left/Right) */
+            .summary-box.popup-center { left: 50%; transform: translateX(-50%); }
+            .summary-box.popup-left { left: 0; transform: translateX(0); }
+            .summary-box.popup-right { right: 0; left: auto; transform: translateX(0); }
+            
+            .summary-box.popup-up { bottom: 130%; }
+            .summary-box.popup-up::after { content: ""; position: absolute; top: 100%; left: 50%; border: 8px solid transparent; border-top-color: white; margin-left: -8px; }
+
+            .summary-box.popup-down { top: 130%; }
+            .summary-box.popup-down::after { content: ""; position: absolute; bottom: 100%; left: 50%; border: 8px solid transparent; border-bottom-color: white; margin-left: -8px; }
+
+            .news-marker:hover .summary-box, .summary-box:hover { opacity: 1; visibility: visible; }
+            
+            /* Typography */
+            h3 { margin: 0 0 6px 0; font-size: 16px; color: #2d3748; line-height: 1.3;}
+            .source { font-size: 11px; color: #718096; text-transform: uppercase; font-weight: 700; margin-bottom: 8px; display: block;}
+            p { margin: 0 0 10px 0; font-size: 13px; line-height: 1.5; color: #4a5568;}
+            .mnemonic-hint { background: #ebf8ff; color: #2c5282; padding: 8px; border-radius: 4px; font-size: 12px; font-style: italic; margin-bottom: 10px; border-left: 3px solid #4299e1; }
+            a { display: inline-block; background: #4299e1; color: white; padding: 4px 12px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: 600; }
+
+            /* Mobile Overrides */
+            @media (max-width: 768px) {
+                .canvas-container { border: none; border-radius: 0; margin-bottom: 20px; }
+                .news-marker { width: 40px; height: 40px; }
+                .summary-box, .summary-box.popup-up, .summary-box.popup-down, .summary-box.popup-left, .summary-box.popup-right {
+                    position: fixed !important; bottom: 0 !important; top: auto !important; left: 0 !important; right: 0 !important;
+                    width: 100% !important; max-width: 100% !important; transform: none !important;
+                    border-radius: 16px 16px 0 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); margin: 0 !important; z-index: 9999;
+                }
+                .summary-box::after { display: none !important; }
+            }
+        </style>
+    </head>
+    <body>
+        <h1>🗺️ NewsMap: Front Page</h1>
+        <div class="canvas-container">
+            <img src="images/index.png" class="main-image">
+    
+            <div class="news-marker" style="top: 55%; left: 15%;">
+                <div class="marker-number">1</div>
+                <div class="summary-box popup-up popup-left">
+                    <h3>Measles exposure found in NC - WRAL</h3>
+                    <span class="source">WRAL.com</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'measuring cup' suggests 'measles', and the 'cashew nuts' sound like 'NC' (North Carolina).</div>
+                    <p>A person carrying measles traveled through Gaston County while infectious, according to the North Carolina Department of Health and Human Se...</p>
+                    <a href="https://www.wral.com/news/state/gaston-county-measles-north-carolina-january-2026/" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 38%; left: 39%;">
+                <div class="marker-number">2</div>
+                <div class="summary-box popup-down popup-center">
+                    <h3>National Society of Film Critics Voting Taking Place (Updating Live) - The Hollywood Reporter</h3>
+                    <span class="source">Hollywood Reporter</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'cricket' sounds like 'critics', and the 'film canisters' represent 'film'. The 'ballot box' signifies 'voting'.</div>
+                    <p>Winners will be noted as they're announced for best picture, director, actor, actress, supporting actor and actress, screenplay and cinemato...</p>
+                    <a href="http://www.hollywoodreporter.com/lists/2026-national-society-of-film-critics-winners-list/" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 25%; left: 15%;">
+                <div class="marker-number">3</div>
+                <div class="summary-box popup-down popup-left">
+                    <h3>How to get stronger as you age - The Washington Post</h3>
+                    <span class="source">The Washington Post</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'ancient oak tree' represents aging, its 'strong roots' signify getting stronger, and the 'wooden post' alludes to 'The Washington Post'.</div>
+                    <p>New research finds that declining health is not inevitable as we age. It can also be a time to get healthier and stronger....</p>
+                    <a href="https://www.washingtonpost.com/podcasts/post-reports/how-to-get-stronger-as-you-age-1/" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 46%; left: 66%;">
+                <div class="marker-number">4</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>Trump says 'we are going to run the country now' after removing Venezuela's president - NPR</h3>
+                    <span class="source">NPR</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'trumpet' represents Trump, the 'Venezuelan flag' signifies Venezuela, and the 'running shoes' symbolize 'running the country'.</div>
+                    <p>President Trump says the United States conducted a strike in Venezuela and captured that country's president, Nicolás Maduro along with his ...</p>
+                    <a href="https://www.npr.org/2026/01/03/g-s1-104346/trump-venezuela-maduro-press-conference" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 53%; left: 79%;">
+                <div class="marker-number">5</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>Post New Year's Box Office: 'Avatar: Fire and Ash' Holds Strong - Variety</h3>
+                    <span class="source">Variety</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'Avatar' figure represents the movie, the 'strongbox' signifies the 'Box Office' holding strong, and the 'variety of flowers' is a literal nod to 'Variety'.</div>
+                    <p>'Avatar: Fire and Ash' took an early lead at the post-New Year’s box office, marking its third Friday at the top of the charts....</p>
+                    <a href="https://variety.com/2026/film/news/post-new-years-box-office-avatar-fire-and-ash-zootopia-2-1236621631/" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 66%; left: 66%;">
+                <div class="marker-number">6</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>Measles exposure at popular downtown restaurant, Best Buy, and library - WYFF News 4</h3>
+                    <span class="source">WYFF4 Greenville</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'measuring spoon' and 'red berries' represent measles. The 'cookbook' signifies a restaurant, the 'Best Buy cart' is for Best Buy, and the 'library books' represent the library.</div>
+                    <p>South Carolina Department of Public Health (DPH) has identified three public places someone with measles may have exposed others to the dise...</p>
+                    <a href="https://www.wyff4.com/article/measles-exposure-restaurant-best-buy-library-sc-greenville/69908010" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 79%; left: 20%;">
+                <div class="marker-number">7</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>3 keys to a 49ers win over the Seahawks: Brock will have a lot on his plate - Niners Nation</h3>
+                    <span class="source">Niners Nation</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'gold pan' is for the '49ers'. The 'keys' are literal 'keys'. The 'sea hawk' represents the 'Seahawks', the 'brock' (rock) sounds like 'Brock', and the 'plate' is a literal plate.</div>
+                    <p>The San Francisco 49ers have a lot on the line on Saturday night when they face the Seattle Seahawks. How can they pull off the win?...</p>
+                    <a href="https://www.ninersnation.com/san-francisco-49ers-news/154690/san-francisco-49ers-news-3-keys-win-seattle-seahawks-brock-purdy-george-kittle" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 60%; left: 50%;">
+                <div class="marker-number">8</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>Important Travel Update for San Juan Disembarkation. - Virgin Voyages</h3>
+                    <span class="source">Virginvoyages.com</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'Virgin airplane' signifies 'Virgin Voyages'. The 'San Juan suitcase' represents 'San Juan' and 'travel', and its placement on a stack of luggage suggests 'disembarkation'.</div>
+                    <p>Virgin Voyages is issuing the following update regarding travel disruptions affecting sailors disembarking in San Juan today....</p>
+                    <a href="https://www.virginvoyages.com/ahoy/stories/san-juan-disembarkation-travel-update" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 80%; left: 44%;">
+                <div class="marker-number">9</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>Billy Joel Performs for First Time Since Brain Disorder Diagnosis - Rolling Stone</h3>
+                    <span class="source">Rolling Stone</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'rolling stone' is literal. The 'grand piano' represents Billy Joel. The 'jumbled keys' symbolize the 'brain disorder' affecting his performance.</div>
+                    <p>Billy Joel returned to the stage for the first time since revealing his brain disorder diagnosis, performing a surprise two-song set....</p>
+                    <a href="http://www.rollingstone.com/music/music-news/billy-joel-performs-first-time-brain-disorder-diagnosis-1235493768/" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+            <div class="news-marker" style="top: 78%; left: 72%;">
+                <div class="marker-number">10</div>
+                <div class="summary-box popup-up popup-center">
+                    <h3>Week 18 NFL straight up, against the spread, and survivor pool picks - PhillyVoice</h3>
+                    <span class="source">PhillyVoice.com</span>
+                    <div class="mnemonic-hint">🧠 <strong>Memory Hook:</strong> The 'football field' signifies the NFL. The '18 guitar picks' represent 'Week 18 picks'. The 'phonograph with a voice' is a pun for 'PhillyVoice'.</div>
+                    <p>Jimmy makes his final regular season picks amid playoff-defining matchups....</p>
+                    <a href="https://www.phillyvoice.com/week-18-nfl-straight-against-spread-and-survivor-pool-picks-eagles-commanders-bears-lions/" target="_blank">Read Story</a>
+                </div>
+            </div>
+        
+        </div>
+    </body>
+    </html>
+    
