@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import datetime
 from pathlib import Path
 from dotenv import load_dotenv
 from newsapi import NewsApiClient
@@ -24,6 +25,7 @@ genai_client = genai.Client(api_key=GOOGLE_API_KEY)
 # Directory setup
 images_dir = Path('images')
 images_dir.mkdir(exist_ok=True)
+HISTORY_FILE = Path('history.json')
 
 # Rate limiting
 last_google_api_call_time = None
@@ -54,6 +56,23 @@ def clean_json_text(text):
     elif "```" in text:
         text = text.split("```")[1].split("```")[0]
     return text.strip()
+
+# --- HISTORY MANAGEMENT ---
+def load_history():
+    if not HISTORY_FILE.exists():
+        return []
+    try:
+        with open(HISTORY_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get('recent_locations', [])
+    except:
+        return []
+
+def save_history(locations):
+    # Keep only the last 5
+    trimmed_locations = locations[-5:]
+    with open(HISTORY_FILE, 'w') as f:
+        json.dump({'recent_locations': trimmed_locations}, f)
 
 def fetch_stories(category, count):
     stories = []
@@ -89,11 +108,14 @@ def fetch_stories(category, count):
         })
     return stories
 
-def generate_memory_palace_concept(stories, count):
+def generate_memory_palace_concept(stories, count, recent_locations):
     wait_for_api_cooldown()
     print("  Scouting Locations & Designing the World (Logic AI)...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
+    
+    # Format the avoid list for the prompt
+    avoid_text = ", ".join(recent_locations) if recent_locations else "None"
 
     prompt = f"""
     You are a Cinematic Location Scout and Mnemonic Artist.
@@ -103,6 +125,7 @@ def generate_memory_palace_concept(stories, count):
     {story_text}
 
     2. CHOOSE THE SETTING:
+       - CRITICAL CONSTRAINT: Do NOT use the following recently used settings: [{avoid_text}].
        - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
        - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
@@ -292,11 +315,17 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
 
 def main():
     print("Starting NewsMap Sketchy Generation...")
+    
+    # 1. Load History
+    recent_locations = load_history()
+    print(f"  Avoiding recent locations: {recent_locations}")
+
     for section in SECTIONS:
         stories = fetch_stories(section['category'], section['story_count'])
         if not stories: continue
             
-        concept = generate_memory_palace_concept(stories, section['story_count'])
+        # 2. Pass recent_locations to the generator
+        concept = generate_memory_palace_concept(stories, section['story_count'], recent_locations)
         if not concept: continue
         
         for story in stories:
@@ -313,9 +342,16 @@ def main():
         locations = find_coordinates(image, concept)
         generate_html(section, stories, locations, image_filename, concept.get('chosen_location', 'World Scene'))
         
+        # 3. Update History
+        new_location = concept.get('chosen_location', 'Unknown')
+        recent_locations.append(new_location)
+        save_history(recent_locations)
+
+        # 4. Git Push with Precise Timestamp
+        current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         try:
             os.system('git add .')
-            os.system(f'git commit -m "Automated Scout: {concept.get("chosen_location")}"')
+            os.system(f'git commit -m "Automated Scout: {new_location} ({current_time})"')
             os.system('git push origin main')
         except:
             print("Git Push Failed.")
