@@ -1,3 +1,4 @@
+
 import os
 import json
 import time
@@ -126,7 +127,8 @@ def generate_memory_palace_concept(stories, count, recent_locations):
 
     2. CHOOSE THE SETTING:
        - CRITICAL CONSTRAINT: Do NOT use the following recently used settings: [{avoid_text}].
-       - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
+       - NEGATIVE CONSTRAINT: Avoid generic city parks, benches, grass fields, or boring public gardens. No empty landscapes.-
+       OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
        - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
     3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
@@ -176,7 +178,7 @@ def generate_image(scene_concept, count):
     for element in scene_concept.get('story_elements', []):
         visual_prompt += f"- In the {element.get('assigned_zone', 'center')}: {element.get('visual_cue')} (Grounded naturally, NO TEXT).\n"
     
-    visual_prompt += "\nEASTER EGG: Somewhere in the scene, clearly visible, include a playful and happy cream-colored Goldendoodle puppy.\n"
+    visual_prompt += "\nEASTER EGG: Somewhere in the scene, clearly visible, include a playful and happy cream-colored Goldendoodle puppy that interacts with one of the mnemonics.\n"
 
     visual_prompt += "\nRULES: NO text, NO labels. Professional digital art. NO white background."
 
