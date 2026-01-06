@@ -292,6 +292,13 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
 
     html += """
         <script>
+            function openStory(id) {
+                closeAll();
+                document.getElementById('card-' + id).classList.add('active');
+                document.getElementById('marker-' + id).classList.add('active');
+                document.querySelector('.overlay').classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
             function closeAll() {
                 document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
                 document.querySelectorAll('.news-marker').forEach(m => m.classList.remove('active'));
