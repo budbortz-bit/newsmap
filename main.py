@@ -170,7 +170,8 @@ def generate_image(scene_concept, count):
     
     visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE: {setting}.\n"
     visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n"
-    
+    visual_prompt += "PHYSICS & REALISM: While stylized, the scene must mostly adhere to basic physical laws. Gravity applies. People and objects must be firmly grounded on solid surfaces. No walking on liquid water, flying without aircraft, or impossibly floating structures.\n"
+
     visual_prompt += f"\nINTEGRATED MNEMONIC OBJECTS:\n"
     for element in scene_concept.get('story_elements', []):
         visual_prompt += f"- In the {element.get('assigned_zone', 'center')}: {element.get('visual_cue')} (Grounded naturally, NO TEXT).\n"
