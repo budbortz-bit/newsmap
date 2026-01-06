@@ -35,130 +35,137 @@
             .overlay.active { display: block; }
             .mnemonic-box { background: #ebf8ff; border-left: 5px solid #4299e1; padding: 15px; margin: 15px 0; font-style: italic; color: #2c5282; }
             .read-btn { display: block; background: #4299e1; color: white; text-align: center; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: bold; }
+            .scene-story { width: 95%; max-width: 1100px; margin-bottom: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         </style>
     </head>
     <body>
-        <h1 style="color: #2d3748; margin-bottom: 20px;">NewsMap</h1>
+        <h1 style="color: #2d3748; margin-bottom: 10px;">NewsMap</h1>
+        
+        <div class="scene-story">
+            <h3 style="margin-top:0; color: #4a5568;">Todays Narrative: A Collapsing Film Set</h3>
+            <p style="color: #4a5568; font-style: italic;">The Raven-shaped Megaphone squawked static as it broadcasted Kim's Hypersonic Arrow, piercing a bronze Super Bowl Trophy. Fragments of metal morphed into a limber Atlas Robot, its movements balletic yet unsettling. The Robot, with newfound sentience, began projecting scenes from 'Avatar: Fire and Ash' onto the crumbling Winner's Podium. The Podium, now sentient as well, critiqued the film using oversized golden 'Critics Choice' statuettes as drumsticks.  Each beat reverberated, causing the Oil Derrick to tilt precariously, nearly crushing a court sketch of Maduro. The sketch began speaking in legalese, as a Lego brick replica of Greenland floated away on a tide of orange Gatorade. The Gatorade pooled around a striped Bengal Helmet, which began to inexplicably growl.</p>
+        </div>
+
         <div class="canvas-container">
             <img src="images/index.png" class="main-image">
-    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 74%; left: 28%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 69%; left: 43%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 20%; left: 76%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 16%; left: 16%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 38%; left: 33%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 77%; left: 69%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 55%; left: 74%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 52%; left: 19%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 89%; left: 48%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 22%; left: 48%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
+    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 27%; left: 24%;">1</div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 30%; left: 40%;">2</div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 25%; left: 44%;">3</div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 37%; left: 57%;">4</div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 58%; left: 64%;">5</div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 60%; left: 54%;">6</div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 55%; left: 12%;">7</div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 51%; left: 18%;">8</div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 81%; left: 32%;">9</div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 88%; left: 77%;">10</div></div><div class="overlay" onclick="closeAll()"></div>
             <div class="story-card" id="card-1">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">The Seattle Times</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">BaltimoreRavens.com</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Seahawks win NFC West, earn NFC’s top seed in playoffs after handling 49ers - The Seattle Times</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Seattle Seahawks winning against the 49ers to secure the NFC's top seed.</div>
-                <p>The Seahawks showed why they might be back at Levi's Stadium next month for the Super Bowl after beating the 49ers 13-3 to win the NFC West title and top seed in the NFC.</p>
-                <a href="https://www.seattletimes.com/sports/seahawks/seahawks-win-nfc-west-earn-nfcs-top-seed-in-playoffs-after-handling-49ers/" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">How to Watch, Listen, Live Stream Ravens vs. Steelers ‘Sunday Night Football’ - Ravens Home | Baltimore Ravens – baltimoreravens.com</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Baltimore Ravens broadcasting something important.</div>
+                <p>The Ravens and Steelers will conclude the regular season with the AFC North championship on the line.</p>
+                <a href="https://www.baltimoreravens.com/news/ravens-steelers-watch-listen-live-stream-nbc-sunday-night-football-afc-north-title-peacock-channel-next-game-schedule-week-18" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-2">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Suntimes.com</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Al Jazeera English</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Horoscope for Sunday, January 04, 2026 - Chicago Sun-Times</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Chicago Sun-Times horoscope for January 4, 2026, 'hanging' over our future.</div>
-                <p>No description available.</p>
-                <a href="https://chicago.suntimes.com/horoscopes/2026/01/04/horoscopes-today-sunday-january-04-2026" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">N Korea’s Kim oversees hypersonic missile tests, cites geopolitical crisis - Al Jazeera</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents North Korea's missile tests.</div>
+                <p>Kim underscores need to bolster N Korea’s nuclear deterrent, citing ‘recent geopolitical crisis’, state media reports.</p>
+                <a href="https://www.aljazeera.com/news/2026/1/5/n-koreas-kim-oversaw-hypersonic-missile-tests-cites-geopolitical-crisis" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-3">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Bleeding Green Nation</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">ESPN</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">NFC playoff picture update following Week 18 Saturday games - Bleeding Green Nation</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the NFC Playoff Picture as discussed by 'Bleeding Green Nation'.</div>
-                <p>The road to the Super Bowl in the NFC is currently set to go through Seattle.</p>
-                <a href="https://www.bleedinggreennation.com/philadelphia-eagles-nfl-playoffs/167775/nfc-playoff-picture-update-following-week-18-saturday-games" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Broncos 19-3 Chargers (Jan 4, 2026) Game Recap - ESPN</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Broncos vs Chargers Game</div>
+                <p>No description available.</p>
+                <a href="https://www.espn.com/nfl/recap?gameId\\u003d401772956" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-4">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Business Insider</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">CBS News</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Here's what the smartest people in foreign policy, business, and economics are saying about Trump's raid on Venezuela - Business Insider</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the 'smartest people in foreign policy, business, and economics' and Trump's raid on Venezuela.</div>
-                <p>Financial firms are planning trips to Venezuela to scout out new investment opportunities. Bill Ackman praised the move as "good for America."</p>
-                <a href="https://www.businessinsider.com/economists-foreign-policy-experts-react-donald-trump-raid-venezuela-maduro-2026-1" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">How Boston Dynamics upgraded the Atlas robot — and what's next - CBS News</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Boston Dynamics' upgraded Atlas robot.</div>
+                <p>Atlas, a humanoid robot made by robotics company Boston Dynamics, has been upgraded from a version 60 Minutes saw in 2021, with joints that can fully rotate and hands that can grip a variety of objects.</p>
+                <a href="https://www.cbsnews.com/news/how-boston-dynamics-upgraded-atlas-robot-and-whats-next-60-minutes/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-5">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Associated Press</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">ABC News</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">North Korea launches ballistic missiles toward sea ahead of South Korean leader's visit to China - AP News</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents North Korea launching ballistic missiles ahead of the South Korean leader's visit to China.</div>
-                <p>South Korea says North Korea has launched ballistic missiles toward the sea. South Korea’s Joint Chiefs of Staff says it detected several ballistic missile launches from North Korea’s capital region Sunday morning, hours before South Korea’s president left fo…</p>
-                <a href="https://apnews.com/article/south-north-korea-missile-76a8850484c5f969e56b797246877c61" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Hollywood starts 2026 with 'Avatar: Fire and Ash' No. 1, as James Cameron's sci-fi epic crosses $1B - ABC News</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Hollywood box office success.</div>
+                <p>Hollywood kicked off 2026 with “Avatar: Fire and Ash” atop the box office for the third straight week and with hopes for a blockbuster-filled year after a disappointing 2025</p>
+                <a href="https://abcnews.go.com/Business/wireStory/hollywood-starts-2026-avatar-fire-ash-1-james-128891173" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-6">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">USA Today</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Deadline</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Powerball winning numbers for Saturday, January 3, 2026 - USA Today</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Powerball winning numbers for January 3, 2026.</div>
-                <p>Who will win Powerball's first drawing of the year with a jackpot worth $64 million?</p>
-                <a href="https://www.usatoday.com/story/money/lottery/2026/01/03/powerball-winning-numbers-saturday-january-3-2026/88000303007/" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Critics Choice Awards Winners List – Updating Live - Deadline</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the Critics Choice Awards.</div>
+                <p>Here are the winners at the 31st annual Critics Choice Awards, honoring the best films and television series of 2025.</p>
+                <a href="http://deadline.com/2026/01/critics-choice-awards-winners-2026-list-1236661448/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-7">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Hollywood Reporter</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">CNBC</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Box Office: ‘Avatar 3’ Flies Past $1B, Sleeper Hit ‘The Housemaid’ Delivers Sydney Sweeney a Win - The Hollywood Reporter</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents 'Avatar 3' passing $1B and 'The Housemaid' giving Sydney Sweeney a win at the Box Office.</div>
-                <p>James Cameron's threequel achieved the milestone Saturday at the New Year weekend box office. Other holiday victors include sleeper hit 'The Housemaid' and Timothée Chalamet's 'Marty Supreme.'</p>
-                <a href="http://www.hollywoodreporter.com/movies/movie-news/box-office-avatar-3-billion-the-housemaid-win-1236463156/" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Crude prices edge lower as Maduro overthrow casts uncertainty over oil-rich Venezuela - CNBC</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the instability of crude oil prices.</div>
+                <p>The impact of Maduro's overthrow on oil prices is ambiguous in the short run, said Daan Struyven, head of oil research at Goldman Sachs.</p>
+                <a href="https://www.cnbc.com/2026/01/04/oil-prices-trump-maduro-venezuela.html" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-8">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Deadline</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">NPR</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Leonardo DiCaprio To Miss Palm Springs Fest After Venezuela Strike - Deadline</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Leonardo DiCaprio missing the Palm Springs Fest after the Venezuela Strike.</div>
-                <p>Leonardo DiCaprio will be forced to miss his Palm Springs Film Festival honor due to air restrictions resulting from the U.S. attack on Venezuela.</p>
-                <a href="http://deadline.com/2026/01/leonardo-dicaprio-palm-springs-film-festival-venezuela-1236660972/" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Nicolás Maduro will appear in U.S. federal court on Monday - NPR</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Maduro's legal troubles.</div>
+                <p>The Venezuelan president, who was captured by U.S. forces early Saturday, is awaiting trial in New York City on federal criminal charges.</p>
+                <a href="https://www.npr.org/2026/01/04/nx-s1-5666351/nicolas-maduro-new-york-court-charges" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-9">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">KGO-TV</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">CNBC</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Live storm updates: North Bay freeway, businesses flooded following storm - ABC7 San Francisco</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents the flooded North Bay freeway and businesses following the storm, as reported by ABC7 San Francisco.</div>
-                <p>The Bay Area is recovering after a Level 2 storm brought rain and gusty winds to the area Friday night.</p>
-                <a href="https://abc7news.com/live-updates/san-francisco-bay-area-storm-updates-parts-north-inundated-waters-leaving-cars-people-stranded/18343129/" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Denmark tells Trump to stop threatening to seize Greenland - CNBC</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Denmark rejecting Trump's interest in Greenland.</div>
+                <p>President Donald Trump has sought to acquire Greenland since his first term.</p>
+                <a href="https://www.cnbc.com/2026/01/04/trump-denmark-greenland-frederiksen-venezuela.html" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
             <div class="story-card" id="card-10">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">NPR</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">cleveland.com</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">Who is María Corina Machado, Venezuela's Nobel Peace Prize winning opposition leader? - NPR</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Maria Corina Machado, Venezuela's Nobel Peace Prize-winning opposition leader.</div>
-                <p>The United States has captured Venezuelan President Nicolás Maduro. Opposition leader María Corina Machado has been one of his biggest critics.</p>
-                <a href="https://www.npr.org/2026/01/03/g-s1-104412/venezuela-nicolas-maduro-maria-corina-machado-opposition" target="_blank" class="read-btn">Read Full Article</a>
+                <h3 style="margin-top:0;">Why Bengals coach Zac Taylor was upset after Myles Garrett’s record-breaking sack - Cleveland.com</h3>
+                <div class="mnemonic-box">🧠 <strong>Hook:</strong> Represents Zac Taylor's frustration after Myles Garrett’s sack.</div>
+                <p>Myles Garrett set the NFL's single-season sack record on Sunday vs. the Bengals in Cincinnati. But it was what happened after the play that upset Bengals coach Zac Taylor.</p>
+                <a href="https://www.cleveland.com/sports/2026/01/why-bengals-coach-zac-taylor-was-upset-after-myles-garretts-record-breaking-sack.html" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
