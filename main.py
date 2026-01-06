@@ -91,43 +91,36 @@ def fetch_stories(category, count):
 
 def generate_memory_palace_concept(stories, count):
     wait_for_api_cooldown()
-    print("  Weaving the Narrative & Designing the World (Logic AI)...")
+    print("  Scouting Locations & Designing the World (Logic AI)...")
     
     story_text = "\n".join([f"Story {s['id']}: {s['title']}" for s in stories])
 
-    # UPDATED PROMPT: MNEMONICS -> STORY -> SETTING
     prompt = f"""
-    You are a Surrealist Storyteller and Visual Artist.
+    You are a Cinematic Location Scout and Mnemonic Artist.
     
-    INPUT STORIES:
+    TASK:
+    1. ANALYZE the headlines for Geographic or Narrative hooks:
     {story_text}
 
-    YOUR PROCESS:
-    1. CREATE MNEMONICS: For EACH story, invent a specific, tangible visual character or object.
+    2. CHOOSE THE SETTING:
+       - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
+       - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
-    2. WRITE A FICTIONAL STORY (The Core Task):
-       - Create a short, surreal narrative (approx 300-500 words) that includes ALL of the mnemonics found in step 1.
-       - IMPORTANT: The characters/objects must INTERACT. 
-       - Examples: "The Bear (Story 1) is stealing a coin from the Robot (Story 2), while the Robot stands on the Melting Clock (Story 3)."
-       - Establish a flow where Object A impacts Object B, B impacts C, etc.
-    
-    3. DERIVE THE SETTING:
-       - Based *strictly* on the most iconic place in articles, choose a cohesive Theme and Setting.
-    
-    4. ASSIGN ZONES:
-       - Even though they are interacting, roughly map where they are located in a wide image (Left, Center, Right, etc.) for tracking purposes.
+    3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
+       - Describe the object CLEARLY and uniquely.
+       - ASSIGN ZONES: Spread them across the image (Foreground Left, Center, Top Right, etc.).
 
     Return JSON format only:
     {{
-        "fictional_story": "The full text of your surreal story connecting all items...",
-        "chosen_location": "Name of the location",
-        "setting_description": "Vivid visual description of the environment based on the story.",
+        "chosen_location": "Location Name",
+        "theme_name": "Internal Theme Title",
+        "setting_description": "Vivid description of architecture and atmosphere.",
         "story_elements": [
             {{ 
                 "id": 1, 
-                "visual_cue": "Brief description of object", 
-                "mnemonic_explanation": "Why this links to the news",
-                "assigned_zone": "General area (e.g. Foreground Left)" 
+                "visual_cue": "Specific object description", 
+                "mnemonic_explanation": "Link to headline",
+                "assigned_zone": "Specific Zone" 
             }}
         ]
     }}
@@ -148,25 +141,18 @@ def generate_memory_palace_concept(stories, count):
 
 def generate_image(scene_concept, count):
     wait_for_api_cooldown()
-    
-    # Extract the new data points
     setting = scene_concept.get('setting_description', 'A cinematic world')
-    fictional_story = scene_concept.get('fictional_story', '')
     
-    print(f"  Illustrating the Story (Image AI)...")
+    print(f"  Painting the Scene (Image AI)...")
     
-    # UPDATED PROMPT: INJECTS THE FICTIONAL STORY
-    visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE.\n"
-    visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n\n"
+    visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE: {setting}.\n"
+    visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n"
     
-    visual_prompt += f"THE SCENE NARRATIVE:\n{fictional_story}\n\n"
-    visual_prompt += f"SETTING ATMOSPHERE: {setting}\n"
-    
-    visual_prompt += f"\nKEY OBJECTS TO INCLUDE (Ensure these are distinct within the scene):\n"
+    visual_prompt += f"\nINTEGRATED MNEMONIC OBJECTS:\n"
     for element in scene_concept.get('story_elements', []):
-        visual_prompt += f"- {element.get('visual_cue')}\n"
+        visual_prompt += f"- In the {element.get('assigned_zone', 'center')}: {element.get('visual_cue')} (Grounded naturally, NO TEXT).\n"
     
-    visual_prompt += "\nRULES: NO text, NO labels. High quality digital art. NO white background. Fill the frame."
+    visual_prompt += "\nRULES: NO text, NO labels. Professional digital art. NO white background."
 
     try:
         response = genai_client.models.generate_content(
@@ -193,7 +179,7 @@ def find_coordinates(image, scene_concept):
 
     prompt = f"""
     Look at this illustration. Find the exact (x, y) coordinates for the center of each specific object listed below.
-    Precise mapping is required. If an object is interacting with another, find the center of the specific object requested.
+    Precise mapping is required. If you cannot find an object, use its 'assigned_zone' to estimate.
     
     List:
     {items_str}
@@ -216,7 +202,7 @@ def find_coordinates(image, scene_concept):
         print(f"  Vision Error: {e}")
         return []
 
-def generate_html(section_config, stories, locations, image_filename, theme_name, fictional_story):
+def generate_html(section_config, stories, locations, image_filename, theme_name):
     html = f"""
     <!DOCTYPE html>
     <html>
@@ -254,17 +240,10 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .overlay.active {{ display: block; }}
             .mnemonic-box {{ background: #ebf8ff; border-left: 5px solid #4299e1; padding: 15px; margin: 15px 0; font-style: italic; color: #2c5282; }}
             .read-btn {{ display: block; background: #4299e1; color: white; text-align: center; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: bold; }}
-            .scene-story {{ width: 95%; max-width: 1100px; margin-bottom: 20px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }}
         </style>
     </head>
     <body>
-        <h1 style="color: #2d3748; margin-bottom: 10px;">NewsMap</h1>
-        
-        <div class="scene-story">
-            <h3 style="margin-top:0; color: #4a5568;">Todays Narrative: {theme_name}</h3>
-            <p style="color: #4a5568; font-style: italic;">{fictional_story}</p>
-        </div>
-
+        <h1 style="color: #2d3748; margin-bottom: 20px;">NewsMap</h1>
         <div class="canvas-container">
             <img src="images/{image_filename}" class="main-image">
     """
@@ -312,7 +291,7 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
         f.write(html)
 
 def main():
-    print("Starting NewsMap Creative Generation...")
+    print("Starting NewsMap Sketchy Generation...")
     for section in SECTIONS:
         stories = fetch_stories(section['category'], section['story_count'])
         if not stories: continue
@@ -332,20 +311,11 @@ def main():
         image.save(images_dir / image_filename)
         
         locations = find_coordinates(image, concept)
-        
-        # Pass the new story elements to the HTML generator
-        generate_html(
-            section, 
-            stories, 
-            locations, 
-            image_filename, 
-            concept.get('chosen_location', 'World Scene'),
-            concept.get('fictional_story', 'A visual story of the news.')
-        )
+        generate_html(section, stories, locations, image_filename, concept.get('chosen_location', 'World Scene'))
         
         try:
             os.system('git add .')
-            os.system(f'git commit -m "Automated Story: {concept.get("chosen_location")}"')
+            os.system(f'git commit -m "Automated Scout: {concept.get("chosen_location")}"')
             os.system('git push origin main')
         except:
             print("Git Push Failed.")
