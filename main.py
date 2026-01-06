@@ -106,15 +106,14 @@ def generate_memory_palace_concept(stories, count):
     1. CREATE MNEMONICS: For EACH story, invent a specific, tangible visual character or object.
     
     2. WRITE A FICTIONAL STORY (The Core Task):
-       - Create a short, surreal narrative (approx 100-150 words) that includes ALL of the mnemonics found in step 1.
+       - Create a short, surreal narrative (approx 300-500 words) that includes ALL of the mnemonics found in step 1.
        - IMPORTANT: The characters/objects must INTERACT. 
        - Examples: "The Bear (Story 1) is stealing a coin from the Robot (Story 2), while the Robot stands on the Melting Clock (Story 3)."
        - Establish a flow where Object A impacts Object B, B impacts C, etc.
     
     3. DERIVE THE SETTING:
-       - Based *strictly* on the vibe of your fictional story, choose a cohesive Theme and Setting.
-       - (e.g., If the story is chaotic, maybe it's a Cyberpunk Bazaar. If it's slow, maybe an Underwater Ruin).
-
+       - Based *strictly* on the most iconic place in articles, choose a cohesive Theme and Setting.
+    
     4. ASSIGN ZONES:
        - Even though they are interacting, roughly map where they are located in a wide image (Left, Center, Right, etc.) for tracking purposes.
 
@@ -293,13 +292,6 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
 
     html += """
         <script>
-            function openStory(id) {
-                closeAll();
-                document.getElementById('card-' + id).classList.add('active');
-                document.getElementById('marker-' + id).classList.add('active');
-                document.querySelector('.overlay').classList.add('active');
-                document.body.style.overflow = 'hidden';
-            }
             function closeAll() {
                 document.querySelectorAll('.story-card').forEach(c => c.classList.remove('active'));
                 document.querySelectorAll('.news-marker').forEach(m => m.classList.remove('active'));
