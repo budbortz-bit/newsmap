@@ -176,7 +176,7 @@ def generate_image(scene_concept, count):
     for element in scene_concept.get('story_elements', []):
         visual_prompt += f"- In the {element.get('assigned_zone', 'center')}: {element.get('visual_cue')} (Grounded naturally, NO TEXT).\n"
     
-    visual_prompt += "\nEASTER EGG: Somewhere in the scene, clearly visible, include a playful and happy cream-colored Goldendoodle dog.\n"
+    visual_prompt += "\nEASTER EGG: Somewhere in the scene, clearly visible, include a playful and happy cream-colored Goldendoodle puppy.\n"
 
     visual_prompt += "\nRULES: NO text, NO labels. Professional digital art. NO white background."
 
