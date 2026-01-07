@@ -173,6 +173,8 @@ def generate_image(scene_concept, count):
     visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE: {setting}.\n"
     visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n"
     visual_prompt += "PHYSICS & REALISM: While stylized, the scene must adhere to basic physical laws. Gravity applies. People, inanimate and animate objects must be firmly grounded on solid surfaces. No walking on liquid water, flying without aircraft, or impossibly floating structures.\n"
+    visual_prompt += "EASTER EGG: Somewhere in the scene, clearly visible, include a playful and happy cream-colored Goldendoodle puppy that interacts with one of the mnemonics.\n"
+    visual_prompt += "Ask yourself if each mnemonic in the picture is grounded, realistic and not floating in air or walking on water in the scene. If not, adjust the scene accordingly.\n"
 
     visual_prompt += f"\nINTEGRATED MNEMONIC OBJECTS:\n"
     for element in scene_concept.get('story_elements', []):
