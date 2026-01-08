@@ -24,6 +24,7 @@
                 transition: 0.2s; 
                 z-index: 100;
             }
+            /* Invisible hitbox */
             .news-marker::after {
                 content: '';
                 position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
@@ -47,7 +48,6 @@
             .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 900; }
             .overlay.active { display: block; }
             
-            /* MNEMONIC BOX STYLE */
             .mnemonic-box { 
                 background: #f7fafc; 
                 border-left: 4px solid #cbd5e0; 
@@ -66,8 +66,104 @@
         <h1 style="color: #2d3748; margin-bottom: 20px;">NewsMap</h1>
         <div class="canvas-container">
             <img src="images/index.png" class="main-image">
-    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 65%; left: 20%;"></div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 40%; left: 45%;"></div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 70%; left: 75%;"></div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 30%; left: 85%;"></div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 60%; left: 45%;"></div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 25%; left: 45%;"></div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 85%; left: 15%;"></div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 90%; left: 85%;"></div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 15%; left: 17%;"></div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 90%; left: 55%;"></div></div><div class="overlay" onclick="closeAll()"></div>
+    <div class="news-marker" onclick="openStory(1)" id="marker-1" style="top: 45.0%; left: 55.0%;"></div><div class="news-marker" onclick="openStory(2)" id="marker-2" style="top: 85.0%; left: 35.0%;"></div><div class="news-marker" onclick="openStory(3)" id="marker-3" style="top: 85.0%; left: 85.0%;"></div><div class="news-marker" onclick="openStory(4)" id="marker-4" style="top: 15.0%; left: 85.0%;"></div><div class="news-marker" onclick="openStory(5)" id="marker-5" style="top: 15.0%; left: 55.0%;"></div><div class="news-marker" onclick="openStory(6)" id="marker-6" style="top: 65.0%; left: 65.0%;"></div><div class="news-marker" onclick="openStory(7)" id="marker-7" style="top: 65.0%; left: 25.0%;"></div><div class="news-marker" onclick="openStory(8)" id="marker-8" style="top: 95.0%; left: 75.0%;"></div><div class="news-marker" onclick="openStory(9)" id="marker-9" style="top: 85.0%; left: 15.0%;"></div><div class="news-marker" onclick="openStory(10)" id="marker-10" style="top: 15.0%; left: 85.0%;"></div></div><div class="overlay" onclick="closeAll()"></div>
             <div class="story-card" id="card-1">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Politico</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">Greenland war powers vote could be heading to Senate floor - Politico</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> Greenland's war powers vote is visualized as an icy 'Greenland' balanced on the Liberty Bell, representing the gravity and political weight of the vote.
+                </div>
+                
+                <p>Sen. Ruben Gallego said he will introduce a war powers resolution to forestall a U.S. invasion of the Danish territory.</p>
+                <a href="https://www.politico.com/live-updates/2026/01/06/congress/greenland-war-powers-gallego-00712605" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-2">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">ABC News</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">Michael Reagan, son of former President Ronald Reagan, has died, family says - ABC News</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> The passing of Michael Reagan is represented by a 'bronze Reagan' statue being tended to by 'Ravens,' connecting to his father's legacy and remembrance.
+                </div>
+                
+                <p>No description available.</p>
+                <a href="https://abcnews.go.com/US/michael-reagan-son-former-president-ronald-reagan-died/story?id\\u003d128962680" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-3">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">BaltimoreRavens.com</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">Statements From Baltimore Ravens Owner Steve Bisciotti & John Harbaugh - Ravens Home | Baltimore Ravens – baltimoreravens.com</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> The Baltimore Ravens statement is depicted as a 'Ravens' helmet resting on legal papers, symbolizing the team's official statement and its implications.
+                </div>
+                
+                <p>Baltimore Ravens Owner Steve Bisciotti announced a change at head coach Tuesday.</p>
+                <a href="https://www.baltimoreravens.com/news/steve-bisciotti-john-harbaugh-ravens-statements" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-4">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Justice.gov</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">District of Massachusetts | Update on Investigation into Brown University and Brookline Shootings - Department of Justice (.gov)</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> The Brown University investigation is visualized as a leaking 'Brown University seal' affecting 'Massachusetts,' highlighting the scope and location of the legal matter.
+                </div>
+                
+                <p>No description available.</p>
+                <a href="https://www.justice.gov/usao-ma/pr/update-investigation-brown-university-and-brookline-shootings" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-5">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Financial Times</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">Elon Musk’s xAI raises $20bn in funding round that doubles valuation - Financial Times</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> Elon Musk's xAI funding round is shown as a money-fueled 'X' soaring upwards, representing the immense financial investment.
+                </div>
+                
+                <p>Announcement comes as scrutiny of chatbot mounts after it created sexualised images of minors</p>
+                <a href="https://www.ft.com/content/f87bde18-ffd4-4e47-a5c8-a3e2099e08f9" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-6">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">CNET</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">We've Found the Coolest, Most Futuristic Tech at CES 2026. And the Show Just Started - CNET</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> CES 2026's futuristic tech is placed in the setting of 'Independence Hall,' but in the near future (2026) to underscore the time-jumped futuristic concept.
+                </div>
+                
+                <p>We've already had a day to trawl for our favorite cutting-edge technology. Neat stuff abounds!</p>
+                <a href="https://www.cnet.com/tech/the-coolest-tech-at-ces-2026/" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-7">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">The Boston Globe</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
@@ -75,7 +171,7 @@
                 <h3 style="margin-top:0;">Massachusetts doctors seeing ‘explosion of flu cases.’ Here’s why. - The Boston Globe</h3>
                 
                 <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The 'explosion' of syrup symbolizes the 'explosion of flu cases' in 'Massachusetts'.
+                    <strong>🧠 Memory Hook:</strong> The Massachusetts flu outbreak is visualized with colonial 'doctors' suffering from the 'flu,' associating the health crisis with a historical Massachusetts theme.
                 </div>
                 
                 <p>Low vaccination rates and a rapidly spreading influenza A strain are pushing toward an early, intense flu season.</p>
@@ -83,23 +179,39 @@
                 <div style="height:20px;"></div>
             </div>
         
-            <div class="story-card" id="card-2">
+            <div class="story-card" id="card-8">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">The Washington Post</strong>
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Deadline</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
-                <h3 style="margin-top:0;">350 Texas teachers targeted for posts about Charlie Kirk, lawsuit says - The Washington Post</h3>
+                <h3 style="margin-top:0;">'Stranger Things 5' Enters Most Popular List As Does 'The Great Flood' - Deadline</h3>
                 
                 <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The '350' chalkboards each with a tiny 'Charlie Kirk' face represent the '350 Texas teachers targeted' because of 'posts about Charlie Kirk'.
+                    <strong>🧠 Memory Hook:</strong> 'Stranger Things 5' and 'The Great Flood' are depicted together, creating a contrasting visual that ties in the recent popularity of both series.
                 </div>
                 
-                <p>A teachers union filed a lawsuit against Texas education officials, alleging violations of free speech protections for comments on the fatal shooting of Charlie Kirk.</p>
-                <a href="https://www.washingtonpost.com/education/2026/01/06/charlie-kirk-texas-teachers-fired/" target="_blank" class="read-btn">Read Full Article</a>
+                <p>'Stranger Things 5' sets New Year’s Day Netflix viewership record w/ finale, enters Most Popular list; 'The Great Flood' Makes Non-English Film List.</p>
+                <a href="http://deadline.com/2026/01/stranger-things-5-ratings-finale-most-popular-list-netflix-1236665536/" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         
-            <div class="story-card" id="card-3">
+            <div class="story-card" id="card-9">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">CNN</strong>
+                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
+                </div>
+                <h3 style="margin-top:0;">Trump’s plan to own the Western Hemisphere and Greenland is not what Americans want - CNN</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> Trump's plan for the Western Hemisphere and Greenland is visualized by him attempting to 'lasso' these regions, symbolizing his ambitions.
+                </div>
+                
+                <p>President Donald Trump’s decision to remove the head of a sovereign country over the weekend was a hugely significant operation. But it was perhaps even more significant as a statement of intent.</p>
+                <a href="https://www.cnn.com/2026/01/06/politics/trump-western-hemisphere-americans-polling" target="_blank" class="read-btn">Read Full Article</a>
+                <div style="height:20px;"></div>
+            </div>
+        
+            <div class="story-card" id="card-10">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Europa.eu</strong>
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
@@ -107,123 +219,11 @@
                 <h3 style="margin-top:0;">Paris Declaration - Robust Security Guarantees for a Solid and Lasting Peace in Ukraine - consilium.europa.eu</h3>
                 
                 <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The shattered 'Paris' plaster dove represents the 'Paris Declaration' for 'peace in Ukraine'.
+                    <strong>🧠 Memory Hook:</strong> The Paris Declaration for Ukraine is represented by the 'Peace Dove' with the EU flag landing on the 'Paris Declaration' document, highlighting the declaration's purpose and origin.
                 </div>
                 
                 <p>On 6 January 2026, the members of the Coalition of the Willing convened in Paris. Declaration on ‘Robust Security Guarantees for a Solid and Lasting Peace in Ukraine’ was issued by France.</p>
                 <a href="https://www.consilium.europa.eu/en/press/press-releases/2026/01/06/robust-security-guarantees-for-a-solid-and-lasting-peace-in-ukraine-statement-of-the-coalition-of-the-willing-issued-by-france/" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-4">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">State.gov</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Joint Statement on the Trilateral Meeting Between the Governments of the United States of America, the State of Israel, and the Syrian Arab Republic - U.S. Department of State (.gov)</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The intertwined 'US', 'Israel', and 'Syria' colored DNA stands for the 'Trilateral Meeting' between them.
-                </div>
-                
-                <p>The text of the following statement was released by the Governments of the United States of America, the State of Israel, and the Syrian Arab Republic. Begin Text. Under the auspices of the United States, senior Israeli and Syrian officials met in Paris. Pres…</p>
-                <a href="https://www.state.gov/releases/office-of-the-spokesperson/2026/01/joint-statement-on-the-trilateral-meeting-between-the-governments-of-the-united-states-of-america-the-state-of-israel-and-the-syrian-arab-republic" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-5">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Thetimes.com</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Mission seeking life on Jupiter ice moon ‘likely’ to be in vain - The Times</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The deflated tire on the icy landscape represents the 'mission seeking life' on 'Jupiter's ice moon' being 'likely to be in vain'.
-                </div>
-                
-                <p>Nasa and the European Space Agency’s probes are due to arrive at Europa in 2031-32 to discover if it can support life. A study says it cannot</p>
-                <a href="https://www.thetimes.com/uk/science/article/mission-jupiter-ice-moon-nasa-in-vain-7xj02qgqm" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-6">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">CNN</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Trump officials told lawmakers that Maduro and his wife hit their heads as they attempted to flee US forces - CNN</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The 'Trump' ets colliding, represents the 'Trump officials' saying that 'Maduro and his wife hit their heads'.
-                </div>
-                
-                <p>Trump administration officials told lawmakers on Monday that then Venezuelan President Nicolas Maduro and his wife Cilia Flores were injured after hitting their heads as they were fleeing US forces trying to arrest them, sources familiar with the briefing tol…</p>
-                <a href="https://www.cnn.com/2026/01/06/politics/maduro-wife-hit-heads-lawmaker-briefing" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-7">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">The Washington Post</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Republican Rep. LaMalfa dies, further narrowing GOP’s House majority - The Washington Post</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The collapsing house represents the 'House majority' being narrowed because 'Rep. LaMalfa dies'.
-                </div>
-                
-                <p>The death of the seven-term congressman, coupled with Rep. Marjorie Taylor Greene vacating her seat Tuesday, means Republicans are likely to face trouble advancing partisan legislation.</p>
-                <a href="https://www.washingtonpost.com/politics/2026/01/06/lamalfa-death-house-republicans/" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-8">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">ABC News</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Uvalde officer was told location of gunman but he failed to act, prosecutors say - ABC News</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The dusty 'Uvalde' badge represents the 'Uvalde officer' who 'failed to act'.
-                </div>
-                
-                <p>No description available.</p>
-                <a href="https://abcnews.go.com/US/opening-statements-begin-former-uvalde-school-officers-trial/story?id\\u003d128941754" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-9">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">NBC News</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Dread Pap smears? Federal guidelines now allow for a self-swab HPV test - NBC News</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The self-swab with a graduation cap represents the 'self-swab HPV test' being 'allowed'.
-                </div>
-                
-                <p>Federal guidelines are expanding the options for cervical cancer screenings beyond the often-disliked Pap smear</p>
-                <a href="https://www.nbcnews.com/health/health-news/hpv-self-swab-test-pap-smears-federal-guidelines-rcna251757" target="_blank" class="read-btn">Read Full Article</a>
-                <div style="height:20px;"></div>
-            </div>
-        
-            <div class="story-card" id="card-10">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <strong style="color:#4299e1; text-transform:uppercase; font-size:12px;">Associated Press</strong>
-                    <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
-                </div>
-                <h3 style="margin-top:0;">Sydney Sweeney box-office hit ‘The Housemaid’ to get a sequel - AP News</h3>
-                
-                <div class="mnemonic-box">
-                    <strong>🧠 Memory Hook:</strong> The tiny 'The Housemaid 2' ticket indicates that 'Sydney Sweeney box-office hit ‘The Housemaid’ to get a sequel'.
-                </div>
-                
-                <p>After just two and half weeks of release, the Sydney Sweeney box-office hit “The Housemaid” is getting a sequel. Lionsgate announced Tuesday that it will start production on “The Housemaid’s Secret” later this year. The film will be based on the second of Fre…</p>
-                <a href="https://apnews.com/article/sydney-sweeney-housemaid-sequel-157a777a7fa309f1418ffe9a504d1df8" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
             </div>
         

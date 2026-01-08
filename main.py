@@ -1,14 +1,14 @@
-
 import os
 import json
 import time
 import datetime
+import string
 from pathlib import Path
 from dotenv import load_dotenv
 from newsapi import NewsApiClient
 from google import genai
 from google.genai import types
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
 # Load environment variables
@@ -93,7 +93,8 @@ def fetch_stories(category, count):
                 'title': article.get('title', 'Unknown Title'),
                 'source': article.get('source', {}).get('name', 'Unknown Source'),
                 'url': article.get('url', '#'),
-                'description': article.get('description', '') or "No description available."
+                'description': article.get('description', '') or "No description available.",
+                'mnemonic_explanation': '' # Initialize empty to prevent old data leakage
             })
     except Exception as e:
         print(f"  News API Error: {e}")
@@ -105,7 +106,8 @@ def fetch_stories(category, count):
             'title': "More Content Coming Soon", 
             'source': "System",
             'url': "#",
-            'description': "Waiting for more headlines to populate."
+            'description': "Waiting for more headlines to populate.",
+            'mnemonic_explanation': ''
         })
     return stories
 
@@ -170,12 +172,12 @@ def generate_image(scene_concept, count):
     
     print(f"  Painting the Scene (Image AI)...")
     
+    # RESTORED FULL PROMPT TEXT BELOW
     visual_prompt = f"A SINGLE CONTINUOUS PANORAMIC SCENE: {setting}.\n"
     visual_prompt += "STYLE: 'Sketchy Medical' mnemonic illustration. Bold black ink outlines, flat cell-shading, vibrant saturated colors. Isometric wide-angle view.\n"
     visual_prompt += "PHYSICS & REALISM: While stylized, the scene must adhere to basic physical laws. Gravity applies. People, inanimate and animate objects must be firmly grounded on solid surfaces. No walking on liquid water, flying without aircraft, or impossibly floating structures.\n"
     visual_prompt += "EASTER EGG: Somewhere in the scene, clearly visible, include a playful and happy cream-colored Goldendoodle puppy that interacts with one of the mnemonics.\n"
     visual_prompt += "Ask yourself if each mnemonic in the picture is grounded, realistic and not floating in air or walking on water in the scene. If not, adjust the scene accordingly.\n"
-    visual_prompt += "Proportionality: Ensure that all people and animals are proportionate to the environment.\n"   
 
     visual_prompt += f"\nINTEGRATED MNEMONIC OBJECTS:\n"
     for element in scene_concept.get('story_elements', []):
@@ -201,49 +203,117 @@ def generate_image(scene_concept, count):
         print(f"  Image Gen Error: {e}")
         return None
 
-def find_coordinates(image, scene_concept):
-    wait_for_api_cooldown()
-    print("  Locating mnemonics (Vision AI)...")
+# --- NEW: GRID SYSTEM HELPER ---
+def draw_grid(image):
+    # Create a copy to draw the grid on
+    grid_img = image.copy()
+    draw = ImageDraw.Draw(grid_img)
+    width, height = grid_img.size
     
+    # 10x10 Grid
+    cols = 10
+    rows = 10
+    cell_w = width / cols
+    cell_h = height / rows
+    
+    # Draw Lines
+    for i in range(1, cols):
+        x = i * cell_w
+        draw.line([(x, 0), (x, height)], fill="cyan", width=2)
+    for i in range(1, rows):
+        y = i * cell_h
+        draw.line([(0, y), (width, y)], fill="cyan", width=2)
+        
+    # Draw Labels (A1... J10)
+    # A=0, B=1...
+    alphabet = string.ascii_uppercase
+    
+    try:
+        font = ImageFont.truetype("arial.ttf", 20)
+    except:
+        font = ImageFont.load_default()
+
+    for c in range(cols):
+        for r in range(rows):
+            label = f"{alphabet[c]}{r+1}"
+            x = (c * cell_w) + 5
+            y = (r * cell_h) + 5
+            # Draw text with simple shadow for readability
+            draw.text((x+1, y+1), label, fill="black", font=font)
+            draw.text((x, y), label, fill="white", font=font)
+            
+    return grid_img
+
+def find_coordinates_with_grid(image, scene_concept):
+    wait_for_api_cooldown()
+    print("  Locating mnemonics using Grid (Vision AI)...")
+    
+    # 1. Create Grid Image
+    grid_image = draw_grid(image)
+    
+    # 2. Prepare Prompt
     items_to_find = [f"ID {e['id']}: {e['visual_cue']}" for e in scene_concept.get('story_elements', [])]
     items_str = "\n".join(items_to_find)
 
-    # UPDATED PROMPT: Uses a 100x100 grid and asks for description first
     prompt = f"""
-    You are a spatial analysis engine.
+    I have overlaid a 10x10 Grid on this image.
+    Columns are A-J. Rows are 1-10.
     
-    Task: Find the exact center point coordinates for the objects listed below.
+    Task: Locate the CENTER of each object listed below.
+    Return the GRID CELL ID (e.g., A1, D5, J9) for each object.
     
-    Process for EACH item:
-    1.  Identify the object in the image.
-    2.  Describe its location in text (e.g. "Bottom left corner", "Top right shelf").
-    3.  Estimate the [x, y] coordinates on a scale of 0 to 100.
-        - x=0 is the left edge, x=100 is the right edge.
-        - y=0 is the top edge, y=100 is the bottom edge.
-    
-    Items to find:
+    Objects to find:
     {items_str}
     
     Return JSON format only:
-    {{ 
-      "locations": [ 
-        {{ "id": 1, "description": "text", "x": 15, "y": 85 }}, 
-        ... 
-      ] 
-    }}
+    {{ "locations": [ {{ "id": 1, "grid_cell": "C4" }}, ... ] }}
     """
 
     try:
         response = genai_client.models.generate_content(
             model='gemini-2.0-flash',
-            contents=[prompt, image],
+            contents=[prompt, grid_image],
             config=types.GenerateContentConfig(response_mime_type="application/json")
         )
         data = json.loads(clean_json_text(response.text))
         if isinstance(data, list): data = data[0]
-        return data.get('locations', [])
+        
+        # 3. Convert Grid Cell to Coordinates
+        final_locations = []
+        alphabet = string.ascii_uppercase
+        
+        for item in data.get('locations', []):
+            cell = item.get('grid_cell', 'A1').strip().upper()
+            if len(cell) < 2: continue
+            
+            # Parse Letter (X)
+            col_char = cell[0]
+            if col_char in alphabet:
+                col_idx = alphabet.index(col_char) # 0-9
+                # Center of the cell is index + 0.5. 
+                # Total width is 10 units. 
+                # So (col_idx + 0.5) * 10 gives percentage.
+                x_pct = (col_idx + 0.5) * 10
+            else:
+                x_pct = 50
+                
+            # Parse Number (Y)
+            try:
+                row_idx = int(cell[1:]) - 1 # 0-9
+                y_pct = (row_idx + 0.5) * 10
+            except:
+                y_pct = 50
+                
+            final_locations.append({
+                "id": item['id'],
+                "x": x_pct,
+                "y": y_pct
+            })
+            
+        return final_locations
+
     except Exception as e:
-        print(f"  Vision Error: {e}")
+        print(f"  Grid Vision Error: {e}")
         return []
 
 def generate_html(section_config, stories, locations, image_filename, theme_name):
@@ -273,6 +343,7 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
                 transition: 0.2s; 
                 z-index: 100;
             }}
+            /* Invisible hitbox */
             .news-marker::after {{
                 content: '';
                 position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
@@ -296,7 +367,6 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .overlay {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 900; }}
             .overlay.active {{ display: block; }}
             
-            /* MNEMONIC BOX STYLE */
             .mnemonic-box {{ 
                 background: #f7fafc; 
                 border-left: 4px solid #cbd5e0; 
@@ -364,40 +434,54 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
         f.write(html)
 
 def main():
-    print("Starting NewsMap Sketchy Generation...")
+    print("Starting NewsMap Grid-Enhanced Generation...")
     
     # 1. Load History
     recent_locations = load_history()
     print(f"  Avoiding recent locations: {recent_locations}")
 
     for section in SECTIONS:
+        # 1. Fetch fresh stories
         stories = fetch_stories(section['category'], section['story_count'])
         if not stories: continue
             
-        # 2. Pass recent_locations to the generator
+        print(f"  Headlines loaded: {stories[0]['title']}...") 
+
+        # 2. Generate Concept
         concept = generate_memory_palace_concept(stories, section['story_count'], recent_locations)
         if not concept: continue
         
+        # 3. STRICT MAPPING: Update stories with the NEW mnemonics
+        matched_ids = []
         for story in stories:
+            found_match = False
             for elem in concept.get('story_elements', []):
-                if elem['id'] == story['id']:
-                    story['mnemonic_explanation'] = elem.get('mnemonic_explanation', '')
-        
+                if int(elem['id']) == int(story['id']):
+                    story['mnemonic_explanation'] = elem.get('mnemonic_explanation', 'Check image for visual pun.')
+                    found_match = True
+                    matched_ids.append(story['id'])
+                    break
+            if not found_match:
+                story['mnemonic_explanation'] = "Visual mnemonic available in image."
+
+        # 4. Generate Image
         image = generate_image(concept, section['story_count'])
         if not image: continue
         
         image_filename = f"{section['filename'].replace('.html', '.png')}"
         image.save(images_dir / image_filename)
         
-        locations = find_coordinates(image, concept)
+        # 5. Find Coordinates using GRID method
+        locations = find_coordinates_with_grid(image, concept)
+        
+        # 6. Generate HTML
         generate_html(section, stories, locations, image_filename, concept.get('chosen_location', 'World Scene'))
         
-        # 3. Update History
+        # 7. Update History & Git Push
         new_location = concept.get('chosen_location', 'Unknown')
         recent_locations.append(new_location)
         save_history(recent_locations)
 
-        # 4. Git Push with Precise Timestamp
         current_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
         try:
             os.system('git add .')
