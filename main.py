@@ -245,18 +245,36 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .canvas-container {{ position: relative; width: 95%; max-width: 1100px; border: 5px solid #2d3748; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
             .main-image {{ width: 100%; height: auto; display: block; }}
             
+            /* --- UPDATED MARKER STYLES --- */
             .news-marker {{ 
-                position: absolute; width: 34px; height: 34px; 
-                background: rgba(66, 153, 225, 0.5); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-                border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 50%; color: white;
-                display: flex; justify-content: center; align-items: center; font-weight: bold; 
-                cursor: pointer; transform: translate(-50%, -50%); transition: 0.2s; z-index: 100;
-                text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+                position: absolute; 
+                width: 12px; /* Much smaller size */
+                height: 12px; 
+                background: transparent; /* No fill */
+                border: 2px solid white; /* White outline */
+                border-radius: 50%; 
+                box-shadow: 0 0 4px rgba(0,0,0,0.5); /* Slight shadow so it's visible on white parts of image */
+                cursor: pointer; 
+                transform: translate(-50%, -50%); 
+                transition: 0.2s; 
+                z-index: 100;
             }}
-            .news-marker:hover, .news-marker.active {{ background: rgba(43, 108, 176, 0.9); transform: translate(-50%, -50%) scale(1.3); z-index: 200; border-color: white; }}
+            
+            /* Invisible hit-box to make the tiny button easier to click */
+            .news-marker::after {{
+                content: '';
+                position: absolute;
+                top: -10px; left: -10px; right: -10px; bottom: -10px;
+            }}
+
+            .news-marker:hover, .news-marker.active {{ 
+                background: white; /* Fill white when hovered/active */
+                transform: translate(-50%, -50%) scale(1.5); 
+                z-index: 200; 
+            }}
+            /* ----------------------------- */
 
             @media (max-width: 600px) {{
-                .news-marker {{ width: 24px; height: 24px; font-size: 11px; }}
                 h1 {{ font-size: 1.8rem; }}
             }}
             
@@ -280,7 +298,8 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
 
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 10 * story['id'], 'y': 50})
-        html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;">{story["id"]}</div>'
+        # UPDATED LINE BELOW: Removed {story['id']} from inside the div
+        html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;"></div>'
     
     html += '</div><div class="overlay" onclick="closeAll()"></div>'
     
