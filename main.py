@@ -208,16 +208,29 @@ def find_coordinates(image, scene_concept):
     items_to_find = [f"ID {e['id']}: {e['visual_cue']}" for e in scene_concept.get('story_elements', [])]
     items_str = "\n".join(items_to_find)
 
+    # UPDATED PROMPT: Uses a 100x100 grid and asks for description first
     prompt = f"""
-    Look at this illustration. Find the exact (x, y) coordinates for the center of each specific object listed below.
-    Precise mapping is required. If you cannot find an object, use its 'assigned_zone' to estimate.
+    You are a spatial analysis engine.
     
-    List:
+    Task: Find the exact center point coordinates for the objects listed below.
+    
+    Process for EACH item:
+    1.  Identify the object in the image.
+    2.  Describe its location in text (e.g. "Bottom left corner", "Top right shelf").
+    3.  Estimate the [x, y] coordinates on a scale of 0 to 100.
+        - x=0 is the left edge, x=100 is the right edge.
+        - y=0 is the top edge, y=100 is the bottom edge.
+    
+    Items to find:
     {items_str}
     
     Return JSON format only:
-    {{ "locations": [ {{ "id": 1, "x": 10, "y": 20 }}, ... ] }}
-    X and Y are percentages (0-100).
+    {{ 
+      "locations": [ 
+        {{ "id": 1, "description": "text", "x": 15, "y": 85 }}, 
+        ... 
+      ] 
+    }}
     """
 
     try:
