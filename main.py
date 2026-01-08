@@ -245,22 +245,22 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .canvas-container {{ position: relative; width: 95%; max-width: 1100px; border: 5px solid #2d3748; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
             .main-image {{ width: 100%; height: auto; display: block; }}
             
-            /* --- UPDATED MARKER STYLES --- */
+            /* MARKER STYLES (Small white outline) */
             .news-marker {{ 
                 position: absolute; 
-                width: 12px; /* Much smaller size */
+                width: 12px; 
                 height: 12px; 
-                background: transparent; /* No fill */
-                border: 2px solid white; /* White outline */
+                background: transparent; 
+                border: 2px solid white; 
                 border-radius: 50%; 
-                box-shadow: 0 0 4px rgba(0,0,0,0.5); /* Slight shadow so it's visible on white parts of image */
+                box-shadow: 0 0 4px rgba(0,0,0,0.5); 
                 cursor: pointer; 
                 transform: translate(-50%, -50%); 
                 transition: 0.2s; 
                 z-index: 100;
             }}
             
-            /* Invisible hit-box to make the tiny button easier to click */
+            /* Invisible hit-box for easier clicking */
             .news-marker::after {{
                 content: '';
                 position: absolute;
@@ -268,11 +268,10 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             }}
 
             .news-marker:hover, .news-marker.active {{ 
-                background: white; /* Fill white when hovered/active */
+                background: white; 
                 transform: translate(-50%, -50%) scale(1.5); 
                 z-index: 200; 
             }}
-            /* ----------------------------- */
 
             @media (max-width: 600px) {{
                 h1 {{ font-size: 1.8rem; }}
@@ -286,7 +285,9 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .story-card.active {{ bottom: 0; }}
             .overlay {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 900; }}
             .overlay.active {{ display: block; }}
-            .mnemonic-box {{ background: #ebf8ff; border-left: 5px solid #4299e1; padding: 15px; margin: 15px 0; font-style: italic; color: #2c5282; }}
+            
+            /* Removed .mnemonic-box CSS */
+
             .read-btn {{ display: block; background: #4299e1; color: white; text-align: center; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: bold; }}
         </style>
     </head>
@@ -298,7 +299,6 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
 
     for story in stories:
         loc = next((l for l in locations if l['id'] == story['id']), {'x': 10 * story['id'], 'y': 50})
-        # UPDATED LINE BELOW: Removed {story['id']} from inside the div
         html += f'<div class="news-marker" onclick="openStory({story["id"]})" id="marker-{story["id"]}" style="top: {loc["y"]}%; left: {loc["x"]}%;"></div>'
     
     html += '</div><div class="overlay" onclick="closeAll()"></div>'
@@ -311,7 +311,6 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">{story['title']}</h3>
-                <div class="mnemonic-box">🧠 <strong>Hook:</strong> {story.get('mnemonic_explanation', 'Visualizing the news.')}</div>
                 <p>{story['description']}</p>
                 <a href="{story['url']}" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
