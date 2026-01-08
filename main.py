@@ -127,8 +127,8 @@ def generate_memory_palace_concept(stories, count, recent_locations):
 
     2. CHOOSE THE SETTING:
        - CRITICAL CONSTRAINT: Do NOT use the following recently used settings: [{avoid_text}].
-       - NEGATIVE CONSTRAINT: Avoid generic city parks, benches, grass fields, or boring public gardens. No empty landscapes.-
-       OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
+       - NEGATIVE CONSTRAINT: Avoid generic city parks, benches, grass fields, or boring public gardens. No empty landscapes.
+       - OPTION A (International): If any headline is international, pick that country's most visually iconic setting.
        - OPTION B (Cinematic): If domestic, pick the most EPIC MOVIE SCENE environment.
     
     3. THE MNEMONICS: For EACH story, invent a Literal Visual Pun or Absurd Character.
@@ -144,7 +144,7 @@ def generate_memory_palace_concept(stories, count, recent_locations):
             {{ 
                 "id": 1, 
                 "visual_cue": "Specific object description", 
-                "mnemonic_explanation": "Link to headline",
+                "mnemonic_explanation": "The Cognitive Bridge: Explain explicitly how the visual connects to the headline keywords. (e.g. 'The leaking pipe represents the data breach described in the news'). Do NOT summarize the news story details.",
                 "assigned_zone": "Specific Zone" 
             }}
         ]
@@ -246,7 +246,7 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .canvas-container {{ position: relative; width: 95%; max-width: 1100px; border: 5px solid #2d3748; border-radius: 15px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }}
             .main-image {{ width: 100%; height: auto; display: block; }}
             
-            /* MARKER STYLES (Small white outline) */
+            /* MARKER STYLES */
             .news-marker {{ 
                 position: absolute; 
                 width: 12px; 
@@ -260,14 +260,10 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
                 transition: 0.2s; 
                 z-index: 100;
             }}
-            
-            /* Invisible hit-box for easier clicking */
             .news-marker::after {{
                 content: '';
-                position: absolute;
-                top: -10px; left: -10px; right: -10px; bottom: -10px;
+                position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px;
             }}
-
             .news-marker:hover, .news-marker.active {{ 
                 background: white; 
                 transform: translate(-50%, -50%) scale(1.5); 
@@ -287,7 +283,17 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
             .overlay {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: none; z-index: 900; }}
             .overlay.active {{ display: block; }}
             
-            /* Removed .mnemonic-box CSS */
+            /* MNEMONIC BOX STYLE */
+            .mnemonic-box {{ 
+                background: #f7fafc; 
+                border-left: 4px solid #cbd5e0; 
+                padding: 12px; 
+                margin: 15px 0; 
+                font-style: italic; 
+                color: #4a5568; 
+                font-size: 0.95rem;
+                line-height: 1.4;
+            }}
 
             .read-btn {{ display: block; background: #4299e1; color: white; text-align: center; padding: 16px; border-radius: 12px; text-decoration: none; font-weight: bold; }}
         </style>
@@ -312,6 +318,11 @@ def generate_html(section_config, stories, locations, image_filename, theme_name
                     <button onclick="closeAll()" style="border:none; background:#f0f4f8; border-radius:50%; width:30px; height:30px; cursor:pointer;">&times;</button>
                 </div>
                 <h3 style="margin-top:0;">{story['title']}</h3>
+                
+                <div class="mnemonic-box">
+                    <strong>🧠 Memory Hook:</strong> {story.get('mnemonic_explanation', 'Visual connection.')}
+                </div>
+                
                 <p>{story['description']}</p>
                 <a href="{story['url']}" target="_blank" class="read-btn">Read Full Article</a>
                 <div style="height:20px;"></div>
